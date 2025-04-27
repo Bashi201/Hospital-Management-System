@@ -3,6 +3,7 @@ package com.hospital.servlet;
 import com.hospital.model.Doctor;
 import com.hospital.model.Patient;
 import com.hospital.model.Room;
+import com.hospital.model.Ambulance;
 import com.hospital.service.DoctorService;
 import com.hospital.service.PatientService;
 import com.hospital.service.RoomService;
@@ -46,64 +47,65 @@ public class PatientServlet extends HttpServlet {
         }
 
         String action = request.getParameter("action");
+        if (action != null && action.equals("logout")) {
+            Patient loggedInPatient = (Patient) session.getAttribute("patient");
+            LOGGER.info("Patient logging out: " + loggedInPatient.getGmail());
+            session.invalidate();
+            response.sendRedirect(request.getContextPath() + "/patient/login");
+            return;
+        }
+
         Patient loggedInPatient = (Patient) session.getAttribute("patient");
         request.setAttribute("name", loggedInPatient.getName());
 
-        if (action == null) {
+        if (action == null || action.isEmpty()) {
             request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
         } else if (action.equals("channeling")) {
-            String doctorId = request.getParameter("doctorId");
-            if (doctorId != null) {
-                request.setAttribute("selectedDoctorId", doctorId);
-            }
             try {
                 List<Doctor> doctors = doctorService.getAllDoctors();
                 request.setAttribute("doctors", doctors);
+                request.getRequestDispatcher("/patient/ChannelingForm.jsp").forward(request, response);
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error fetching doctors for channeling form", e);
+                LOGGER.log(Level.SEVERE, "Error fetching doctors", e);
                 request.setAttribute("errorMessage", "Error loading doctors: " + e.getMessage());
+                request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
             }
-            request.getRequestDispatcher("/patient/ChannelingForm.jsp").forward(request, response);
         } else if (action.equals("doctors")) {
             try {
                 List<Doctor> doctors = doctorService.getAllDoctors();
                 request.setAttribute("doctors", doctors);
-                LOGGER.info("Fetched " + doctors.size() + " doctors for DoctorProfile.jsp");
-                request.getRequestDispatcher("/patient/DoctorProfile.jsp").forward(request, response);
+                request.getRequestDispatcher("/patient/Doctors.jsp").forward(request, response);
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error fetching doctors for profile", e);
-                request.setAttribute("errorMessage", "Error fetching doctors: " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "Error fetching doctors", e);
+                request.setAttribute("errorMessage", "Error loading doctors: " + e.getMessage());
                 request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
             }
         } else if (action.equals("rooms")) {
             try {
-                List<Room> availableRooms = roomService.getAvailableRooms();
-                request.setAttribute("availableRooms", availableRooms);
-                request.getRequestDispatcher("/patient/RoomAvailability.jsp").forward(request, response);
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error fetching rooms", e);
-                request.setAttribute("errorMessage", "Error fetching rooms: " + e.getMessage());
-                request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
-            }
-        } else if (action.equals("bookRoomForm")) { // New action for booking form
-            String roomId = request.getParameter("roomId");
-            if (roomId != null) {
-                request.setAttribute("selectedRoomId", roomId);
-            }
-            try {
-                List<Room> availableRooms = roomService.getAvailableRooms();
-                request.setAttribute("availableRooms", availableRooms);
-                LOGGER.info("Forwarding to RoomBookingForm.jsp with selectedRoomId: " + roomId);
+                List<Room> rooms = roomService.getAvailableRooms();
+                request.setAttribute("rooms", rooms);
                 request.getRequestDispatcher("/patient/RoomBookingForm.jsp").forward(request, response);
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Error fetching rooms for booking form", e);
+                LOGGER.log(Level.SEVERE, "Error fetching rooms", e);
                 request.setAttribute("errorMessage", "Error loading rooms: " + e.getMessage());
-                request.getRequestDispatcher("/patient/RoomAvailability.jsp").forward(request, response);
+                request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
             }
-        } else if (action.equals("logout")) {
-            LOGGER.info("Patient logging out: " + loggedInPatient.getGmail());
-            session.invalidate();
-            response.sendRedirect(request.getContextPath() + "/patient/login");
+        } else if (action.equals("bookAmbulanceForm")) {
+            request.getRequestDispatcher("/patient/AmbulanceBookingForm.jsp").forward(request, response);
+        } else if (action.equals("viewBookedAmbulances")) {
+            try {
+                List<Ambulance> bookedAmbulances = patientService.getBookedAmbulances(loggedInPatient.getId());
+                request.setAttribute("bookedAmbulances", bookedAmbulances);
+                request.getRequestDispatcher("/patient/BookedAmbulances.jsp").forward(request, response);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error fetching booked ambulances", e);
+                request.setAttribute("errorMessage", "Error loading booked ambulances: " + e.getMessage());
+                request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
+            }
+        } else if (action.equals("ambulanceDashboard")) {
+            request.getRequestDispatcher("/patient/AmbulanceDashboard.jsp").forward(request, response);
+        } else {
+            request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
         }
     }
 
@@ -192,11 +194,44 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", "Please fill all fields correctly.");
                 }
                 request.getRequestDispatcher("/patient/RoomBookingForm.jsp").forward(request, response);
+            } else if (action.equals("bookAmbulance")) {
+                String pickupLocation = request.getParameter("pickupLocation");
+                String destination = request.getParameter("destination");
+                String requestDate = request.getParameter("requestDate");
+                String requestTime = request.getParameter("requestTime");
+
+                if (pickupLocation != null && !pickupLocation.trim().isEmpty() &&
+                    destination != null && !destination.trim().isEmpty() &&
+                    requestDate != null && !requestDate.trim().isEmpty() &&
+                    requestTime != null && !requestTime.trim().isEmpty()) {
+                    try {
+                        boolean booked = patientService.bookAmbulance(
+                            loggedInPatient.getId(),
+                            pickupLocation,
+                            destination,
+                            requestDate,
+                            requestTime
+                        );
+                        if (booked) {
+                            request.setAttribute("successMessage",
+                                "Ambulance booked successfully for " + pickupLocation +
+                                " to " + destination + " on " + requestDate + " at " + requestTime);
+                        } else {
+                            request.setAttribute("errorMessage", "Failed to book ambulance. No available ambulances.");
+                        }
+                    } catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE, "Error booking ambulance", e);
+                        request.setAttribute("errorMessage", "Database error: " + e.getMessage());
+                    }
+                } else {
+                    request.setAttribute("errorMessage", "Please fill all fields correctly.");
+                }
+                request.getRequestDispatcher("/patient/AmbulanceBookingForm.jsp").forward(request, response);
             } else {
-                response.sendRedirect(request.getContextPath() + "/patient");
+                response.sendRedirect(request.getContextPath() + "/patient/login");
             }
         } else {
-            response.sendRedirect(request.getContextPath() + "/patient");
+            response.sendRedirect(request.getContextPath() + "/patient/login");
         }
     }
 }

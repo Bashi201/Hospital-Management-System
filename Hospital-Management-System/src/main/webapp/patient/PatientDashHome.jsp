@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -39,11 +38,8 @@
         <div class="flex-1 flex flex-col" style="background-image: url('${pageContext.request.contextPath}/patient/assets/PatientDashHome.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
             <!-- Top Navbar -->
             <header class="bg-white shadow p-4 flex justify-between items-center">
-                <!-- Date and Time Display -->
                 <span id="datetime" class="text-xl font-semibold text-gray-800"></span>
-                
                 <div class="flex items-center space-x-4 relative">
-                    <!-- Profile Picture Container -->
                     <div class="relative group">
                         <img src="patient_dp.jpeg" alt="Patient Profile" class="w-12 h-12 rounded-full border-2 border-gray-300 shadow-sm cursor-pointer object-cover">
                         <div class="absolute left-1/2 transform -translate-x-1/2 hidden group-hover:flex 
@@ -51,15 +47,11 @@
                             <img src="patient_dp.jpeg" alt="Patient Profile Enlarged" class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>
-                    
-                    <!-- Patient Name -->
                     <span class="text-gray-700 font-medium">Welcome, ${name}</span>
-                    
-                    <!-- Logout Button -->
-                 <a href="${pageContext.request.contextPath}/patient?action=logout" 
-   class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-    Logout
-</a>
+                    <a href="${pageContext.request.contextPath}/patient?action=logout" 
+                       class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                        Logout
+                    </a>
                 </div>
             </header>
 
@@ -68,27 +60,35 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
                     <!-- Channels Tile -->
                     <a href="${pageContext.request.contextPath}/patient?action=channeling" 
-   class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center h-64">
-    <i class="fas fa-calendar-alt text-6xl text-blue-600 mb-4"></i>
-    <h2 class="text-2xl font-semibold text-gray-800">Channels</h2>
-    <p class="text-gray-600 mt-2">Book appointments</p>
-</a>
+                       class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-calendar-alt text-6xl text-blue-600 mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-gray-800">Channels</h2>
+                        <p class="text-gray-600 mt-2">Book appointments</p>
+                    </a>
 
                     <!-- Doctors Tile -->
                     <a href="${pageContext.request.contextPath}/patient?action=doctors" 
-   class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center h-64">
-    <i class="fas fa-user-md text-6xl text-blue-600 mb-4"></i>
-    <h2 class="text-2xl font-semibold text-gray-800">Doctors</h2>
-    <p class="text-gray-600 mt-2">View doctor profiles</p>
-</a>
+                       class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-user-md text-6xl text-blue-600 mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-gray-800">Doctors</h2>
+                        <p class="text-gray-600 mt-2">View doctor profiles</p>
+                    </a>
 
                     <!-- Rooms Tile -->
-                   <a href="${pageContext.request.contextPath}/patient?action=rooms" 
-   class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center h-64">
-    <i class="fas fa-bed text-6xl text-blue-600 mb-4"></i>
-    <h2 class="text-2xl font-semibold text-gray-800">Rooms</h2>
-    <p class="text-gray-600 mt-2">Check room availability</p>
-</a>
+                    <a href="${pageContext.request.contextPath}/patient?action=rooms" 
+                       class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-bed text-6xl text-blue-600 mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-gray-800">Rooms</h2>
+                        <p class="text-gray-600 mt-2">Check room availability</p>
+                    </a>
+
+                    <!-- Ambulance Tile (Updated) -->
+                    <a href="${pageContext.request.contextPath}/patient?action=ambulanceDashboard" 
+                       class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-ambulance text-6xl text-blue-600 mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-gray-800">Ambulance</h2>
+                        <p class="text-gray-600 mt-2">Manage ambulance services</p>
+                    </a>
                 </div>
             </div>
         </div>
@@ -109,8 +109,6 @@
             const formattedDateTime = now.toLocaleString('en-US', options);
             document.getElementById('datetime').textContent = formattedDateTime;
         }
-    
-        // Update immediately and then every second
         updateDateTime();
         setInterval(updateDateTime, 1000);
     </script>

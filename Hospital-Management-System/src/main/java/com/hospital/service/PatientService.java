@@ -1,7 +1,7 @@
 package com.hospital.service;
 
+import com.hospital.model.Ambulance;
 import com.hospital.model.Patient;
-
 import com.hospital.util.DBConnection;
 
 import java.sql.*;
@@ -135,7 +135,8 @@ public class PatientService {
             return false;
         }
     }
-    //Add a bookRoom method to save the room booking to the database:
+
+    // Book Room
     public boolean bookRoom(String patientId, String roomId, String checkInDate, String checkOutDate) throws SQLException {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -176,7 +177,7 @@ public class PatientService {
         }
     }
 
-    
+    // Book Appointment
     public boolean bookAppointment(String patientId, String doctorId, String appointmentDate, String appointmentTime) throws SQLException {
         String sql = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -186,6 +187,87 @@ public class PatientService {
             stmt.setString(4, appointmentTime);
             return stmt.executeUpdate() > 0;
         }
+    }
+
+    // Book Ambulance
+    public boolean bookAmbulance(String patientId, String pickupLocation, String destination, String requestDate, String requestTime) throws SQLException {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = DBConnection.getConnection();
+            connection.setAutoCommit(false); // Start transaction
+
+            // Check for available ambulance
+            String checkSql = "SELECT id FROM ambulances WHERE availability = 'Available' LIMIT 1";
+            statement = connection.prepareStatement(checkSql);
+            ResultSet rs = statement.executeQuery();
+            if (!rs.next()) {
+                rs.close();
+                statement.close();
+                connection.rollback();
+                return false; // No available ambulance
+            }
+            int ambulanceId = rs.getInt("id");
+            rs.close();
+            statement.close();
+
+            // Insert booking
+            String sql = "INSERT INTO ambulance_bookings (patient_id, pickup_location, destination, request_date, request_time, status, ambulance_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, patientId);
+            statement.setString(2, pickupLocation);
+            statement.setString(3, destination);
+            statement.setString(4, requestDate);
+            statement.setString(5, requestTime);
+            statement.setString(6, "Pending");
+            statement.setInt(7, ambulanceId);
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+
+            // Update ambulance availability
+            String updateSql = "UPDATE ambulances SET availability = 'Booked' WHERE id = ?";
+            statement = connection.prepareStatement(updateSql);
+            statement.setInt(1, ambulanceId);
+            statement.executeUpdate();
+
+            connection.commit();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            if (connection != null) try { connection.rollback(); } catch (SQLException re) { re.printStackTrace(); }
+            System.out.println("SQL Error in bookAmbulance: " + e.getMessage());
+            throw e;
+        } finally {
+            if (statement != null) try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            if (connection != null) try { connection.setAutoCommit(true); connection.close(); } catch (SQLException e) { e.printStackTrace(); }
+        }
+    }
+
+    // Get Booked Ambulances for a Patient
+    public List<Ambulance> getBookedAmbulances(String patientId) throws SQLException {
+        List<Ambulance> bookings = new ArrayList<>();
+        String query = "SELECT ab.*, a.vehicle_number FROM ambulance_bookings ab " +
+                      "JOIN ambulances a ON ab.ambulance_id = a.id WHERE ab.patient_id = ?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, patientId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Ambulance booking = new Ambulance();
+                booking.setId(rs.getInt("id"));
+                booking.setPatientId(rs.getString("patient_id"));
+                booking.setPickupLocation(rs.getString("pickup_location"));
+                booking.setDestination(rs.getString("destination"));
+                booking.setRequestDate(rs.getString("request_date"));
+                booking.setRequestTime(rs.getString("request_time"));
+                booking.setStatus(rs.getString("status"));
+                // Optionally, you could add vehicle_number to the Ambulance model if needed
+                bookings.add(booking);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error in getBookedAmbulances: " + e.getMessage());
+            throw e;
+        }
+        return bookings;
     }
 
     public boolean hasPatient() {
