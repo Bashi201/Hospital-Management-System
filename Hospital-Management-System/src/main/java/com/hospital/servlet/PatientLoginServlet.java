@@ -5,13 +5,12 @@ import com.hospital.service.PatientService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 
-@WebServlet("/patient/login") // Lowercase for consistency
+@WebServlet("/patientLogin")
 public class PatientLoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private PatientService patientService;
@@ -23,54 +22,47 @@ public class PatientLoginServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String gmail = request.getParameter("gmail");
-        String password = request.getParameter("password");
-
-        // Check if session already exists
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("patient") != null) {
-            response.sendRedirect(request.getContextPath() + "/patient");
-            return;
-        }
-
-        // Authenticate patient
-        Patient patient = authenticatePatient(gmail, password);
-
-        if (patient != null) {
-            // Create a new session for the authenticated patient
-            session = request.getSession(true);
-            session.setAttribute("patient", patient);
-            session.setAttribute("name", patient.getName());
-            session.setMaxInactiveInterval(30 * 60); // 30 minutes
-
-            // Redirect to the patient dashboard
-            response.sendRedirect(request.getContextPath() + "/patient");
+            response.sendRedirect(request.getContextPath() + "/patientDashboard");
         } else {
-            // Authentication failed, forward back to login page with error
-            request.setAttribute("errorMessage", "Invalid Gmail or password");
-            request.getRequestDispatcher("/patient/PatientLoging.jsp").forward(request, response); // Corrected JSP name
+            request.getRequestDispatcher("/patient/PatientLogin.jsp").forward(request, response);
         }
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Check if user is already logged in
-        HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("patient") != null) {
-            response.sendRedirect(request.getContextPath() + "/patient");
-        } else {
-            // Show the login page
-            request.getRequestDispatcher("/patient/PatientLoging.jsp").forward(request, response); // Corrected JSP name
-        }
-    }
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String gmail = request.getParameter("gmail");
+        String password = request.getParameter("password");
 
-    private Patient authenticatePatient(String gmail, String password) {
-        for (Patient patient : patientService.getAllPatients()) {
-            if (patient.getGmail().equalsIgnoreCase(gmail) && patient.getPassword().equals(password)) {
-                return patient;
+        try {
+            List<Patient> patients = patientService.getAllPatients(); // This call throws SQLException
+            Patient authenticatedPatient = null;
+
+            for (Patient patient : patients) {
+                if (patient.getGmail().equals(gmail) && patient.getPassword().equals(password)) {
+                    authenticatedPatient = patient;
+                    break;
+                }
             }
+
+            if (authenticatedPatient != null) {
+                HttpSession session = request.getSession();
+                session.setAttribute("patient", authenticatedPatient);
+                response.sendRedirect(request.getContextPath() + "/patientDashboard");
+            } else {
+                request.setAttribute("errorMessage", "Invalid email or password.");
+                request.getRequestDispatcher("/patient/PatientLogin.jsp").forward(request, response);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Database error occurred: " + e.getMessage());
+            request.getRequestDispatcher("/patient/PatientLogin.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Unexpected error occurred: " + e.getMessage());
+            request.getRequestDispatcher("/patient/PatientLogin.jsp").forward(request, response);
         }
-        return null;
     }
 }

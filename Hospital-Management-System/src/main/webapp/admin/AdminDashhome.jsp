@@ -22,12 +22,12 @@
                         </a>
                     </li>
                     <li class="mb-4">
-                        <a href="#" class="flex items-center p-2 hover:bg-gray-700 rounded">
+                        <a href="${pageContext.request.contextPath}/admin?action=patients" class="flex items-center p-2 hover:bg-gray-700 rounded">
                             <i class="fas fa-users mr-3"></i> Manage Patients
                         </a>
                     </li>
                     <li class="mb-4">
-                        <a href="#" class="flex items-center p-2 hover:bg-gray-700 rounded">
+                        <a href="${pageContext.request.contextPath}/admin?action=doctors" class="flex items-center p-2 hover:bg-gray-700 rounded">
                             <i class="fas fa-user-md mr-3"></i> Manage Doctors
                         </a>
                     </li>
@@ -87,10 +87,10 @@
                         <h2 class="text-2xl font-semibold text-gray-800">Nurses</h2>
                         <p class="text-gray-600 mt-2">Manage nursing staff</p>
                     </a>
-                    <a href="${pageContext.request.contextPath}/admin?action=ambulance" class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow flex flex-col items-center justify-center h-64">
+                    <a href="${pageContext.request.contextPath}/admin?action=manageAmbulance" class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow flex flex-col items-center justify-center h-64">
                         <i class="fas fa-ambulance text-6xl text-blue-600 mb-4"></i>
                         <h2 class="text-2xl font-semibold text-gray-800">Ambulance</h2>
-                        <p class="text-gray-600 mt-2">Manage services</p>
+                        <p class="text-gray-600 mt-2">Available Ambulances: ${availableAmbulances != null ? availableAmbulances : '0'}</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=salary" class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow flex flex-col items-center justify-center h-64">
                         <i class="fas fa-money-bill-wave text-6xl text-blue-600 mb-4"></i>

@@ -9,44 +9,34 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.SQLException;
 
-@WebServlet("/patient/ManagePatientCreate")
+@WebServlet("/patientCreate")
 public class PatientCreateServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private PatientService patientService;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        patientService = new PatientService();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Forward the request to the form JSP page
-        request.getRequestDispatcher("/patient/ManagePatientCreate.jsp").forward(request, response);
+        request.getRequestDispatcher("/patient/PatientCreate.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Get form parameters
         String id = request.getParameter("id");
         String phoneNumber = request.getParameter("phoneNumber");
         String name = request.getParameter("name");
         String gender = request.getParameter("gender");
-        String admittedTimeStr = request.getParameter("admittedTime");
+        String admittedTime = request.getParameter("admittedTime");
         String gmail = request.getParameter("gmail");
         String password = request.getParameter("password");
 
-        // Convert admittedTime from String to a suitable format (e.g., for database)
-        String admittedTime = null;
-        try {
-            // Assuming admittedTime comes from datetime-local in format "yyyy-MM-dd'T'HH:mm"
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = inputFormat.parse(admittedTimeStr);
-            admittedTime = outputFormat.format(date);
-        } catch (Exception e) {
-            request.setAttribute("errorMessage", "Invalid admitted time format");
-            request.getRequestDispatcher("/patient/ManagePatientCreate.jsp").forward(request, response);
-            return;
-        }
-
-        // Create a Patient object and set its properties
         Patient patient = new Patient();
         patient.setId(id);
         patient.setPhoneNumber(phoneNumber);
@@ -56,18 +46,21 @@ public class PatientCreateServlet extends HttpServlet {
         patient.setGmail(gmail);
         patient.setPassword(password);
 
-        // Call the PatientService to create the patient in the database
-        PatientService patientService = new PatientService();
-        boolean isCreated = patientService.createPatient(patient);
-
-        // Check if the patient was successfully created
-        if (isCreated) {
-            // Redirect to the login page after successful creation
-            response.sendRedirect(request.getContextPath() + "/patient/login");
-        } else {
-            // If there is an error, show an error message on the create page
-            request.setAttribute("errorMessage", "Error creating patient. Gmail might already exist.");
-            request.getRequestDispatcher("/patient/ManagePatientCreate.jsp").forward(request, response);
+        try {
+            if (patientService.createPatient(patient)) { // This call throws SQLException
+                response.sendRedirect(request.getContextPath() + "/patientLogin");
+            } else {
+                request.setAttribute("errorMessage", "Error creating patient. Email might already exist or invalid data provided.");
+                request.getRequestDispatcher("/patient/PatientCreate.jsp").forward(request, response);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Database error occurred while creating patient: " + e.getMessage());
+            request.getRequestDispatcher("/patient/PatientCreate.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Unexpected error occurred while creating patient: " + e.getMessage());
+            request.getRequestDispatcher("/patient/PatientCreate.jsp").forward(request, response);
         }
     }
 }

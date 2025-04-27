@@ -1,7 +1,11 @@
 package com.hospital.servlet;
 
 import com.hospital.model.Admin;
+import com.hospital.model.Doctor;
+import com.hospital.model.Patient;
 import com.hospital.service.AdminService;
+import com.hospital.service.DoctorService;
+import com.hospital.service.PatientService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -10,6 +14,9 @@ import javax.servlet.http.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet("/admin")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
@@ -18,11 +25,15 @@ import java.nio.file.Paths;
 public class AdminServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private AdminService adminService;
+    private PatientService patientService;
+    private DoctorService doctorService;
 
     @Override
     public void init() throws ServletException {
         super.init();
         adminService = new AdminService();
+        patientService = new PatientService();
+        doctorService = new DoctorService();
     }
 
     private String handlePhotoUpload(Part filePart, String uploadDirectory) throws IOException {
@@ -56,33 +67,117 @@ public class AdminServlet extends HttpServlet {
         request.setAttribute("name", loggedInAdmin.getName());
         request.setAttribute("picture", loggedInAdmin.getFilename());
 
-        if (action == null) {
-            try {
+        try {
+            if (action == null || action.equals("dashboard")) {
+                try {
+                    int availableAmbulances = patientService.getAvailableAmbulanceCount();
+                    request.setAttribute("availableAmbulances", availableAmbulances);
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to fetch ambulance count: " + e.getMessage());
+                }
+                request.getRequestDispatcher("/admin/AdminDashhome.jsp").forward(request, response);
+            } else if (action.equals("manageAmbulance")) {
+                try {
+                    int availableAmbulances = patientService.getAvailableAmbulanceCount();
+                    request.setAttribute("availableAmbulances", availableAmbulances);
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to fetch ambulance count: " + e.getMessage());
+                }
+                request.getRequestDispatcher("/admin/ManageAmbulance.jsp").forward(request, response);
+            } else if (action.equals("create")) {
+                request.getRequestDispatcher("/admin/ManageAdminsCreate.jsp").forward(request, response);
+            } else if (action.equals("view")) {
+                String id = request.getParameter("id");
+                Admin admin = adminService.getAdmin(id);
+                request.setAttribute("admin", admin);
+                request.getRequestDispatcher("/admin/ManageAdminIndex.jsp").forward(request, response);
+            } else if (action.equals("edit")) {
+                String id = request.getParameter("id");
+                Admin admin = adminService.getAdmin(id);
+                request.setAttribute("admin", admin);
+                request.getRequestDispatcher("/admin/ManageAdminEdit.jsp").forward(request, response);
+            } else if (action.equals("delete")) {
+                String id = request.getParameter("id");
+                adminService.deleteAdmin(id);
+                response.sendRedirect(request.getContextPath() + "/admin");
+            } else if (action.equals("logout")) {
+                session.invalidate();
+                response.sendRedirect(request.getContextPath() + "/admin/login");
+            } else if (action.equals("manageAdmins")) {
                 request.setAttribute("admins", adminService.getAllAdmins());
                 request.getRequestDispatcher("/admin/ManageAllAdmin.jsp").forward(request, response);
-            } catch (Exception e) {
-                e.printStackTrace();
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error fetching admin list");
+            } else if (action.equals("patients")) {
+                request.getRequestDispatcher("/admin/ManagePatients.jsp").forward(request, response);
+            } else if (action.equals("createPatient")) {
+                request.getRequestDispatcher("/patient/ManagePatientCreate.jsp").forward(request, response);
+            } else if (action.equals("viewPatients")) {
+                try {
+                    List<Patient> patients = patientService.getAllPatients();
+                    request.setAttribute("patients", patients);
+                    request.getRequestDispatcher("/admin/ViewAllPatients.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to fetch patients: " + e.getMessage());
+                    request.getRequestDispatcher("/admin/ViewAllPatients.jsp").forward(request, response);
+                }
+            } else if (action.equals("deletePatient")) {
+                String id = request.getParameter("id");
+                try {
+                    if (patientService.deletePatient(id)) {
+                        response.sendRedirect(request.getContextPath() + "/admin?action=viewPatients");
+                    } else {
+                        request.setAttribute("errorMessage", "Failed to delete patient. The patient may be referenced in other records or does not exist.");
+                        List<Patient> patients = patientService.getAllPatients();
+                        request.setAttribute("patients", patients);
+                        request.getRequestDispatcher("/admin/ViewAllPatients.jsp").forward(request, response);
+                    }
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to delete patient: " + e.getMessage());
+                    try {
+                        List<Patient> patients = patientService.getAllPatients();
+                        request.setAttribute("patients", patients);
+                    } catch (SQLException ex) {
+                        request.setAttribute("errorMessage", "Failed to fetch patients after deletion attempt: " + ex.getMessage());
+                    }
+                    request.getRequestDispatcher("/admin/ViewAllPatients.jsp").forward(request, response);
+                }
+            } else if (action.equals("doctors")) {
+                request.getRequestDispatcher("/admin/ManageDoctors.jsp").forward(request, response);
+            } else if (action.equals("createDoctor")) {
+                request.getRequestDispatcher("/admin/ManageDoctorCreate.jsp").forward(request, response);
+            } else if (action.equals("viewDoctors")) {
+                try {
+                    List<Doctor> doctors = doctorService.getAllDoctors();
+                    request.setAttribute("doctors", doctors);
+                    request.getRequestDispatcher("/admin/ViewAllDoctors.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to fetch doctors: " + e.getMessage());
+                    request.getRequestDispatcher("/admin/ViewAllDoctors.jsp").forward(request, response);
+                }
+            } else if (action.equals("deleteDoctor")) {
+                String id = request.getParameter("id");
+                try {
+                    doctorService.deleteDoctor(id);
+                    response.sendRedirect(request.getContextPath() + "/admin?action=viewDoctors");
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to delete doctor: " + e.getMessage());
+                    try {
+                        List<Doctor> doctors = doctorService.getAllDoctors();
+                        request.setAttribute("doctors", doctors);
+                    } catch (SQLException ex) {
+                        request.setAttribute("errorMessage", "Failed to fetch doctors after deletion attempt: " + ex.getMessage());
+                    }
+                    request.getRequestDispatcher("/admin/ViewAllDoctors.jsp").forward(request, response);
+                }
+            } else if (action.equals("updateDoctor")) {
+                String id = request.getParameter("id");
+                Doctor doctor = doctorService.getDoctor(id);
+                request.setAttribute("doctor", doctor);
+                request.getRequestDispatcher("/admin/ManageDoctorUpdate.jsp").forward(request, response);
             }
-        } else if (action.equals("create")) {
-            request.getRequestDispatcher("/admin/ManageAdminsCreate.jsp").forward(request, response);
-        } else if (action.equals("view")) {
-            String id = request.getParameter("id");
-            Admin admin = adminService.getAdmin(id);
-            request.setAttribute("admin", admin);
-            request.getRequestDispatcher("/admin/ManageAdminIndex.jsp").forward(request, response);
-        } else if (action.equals("edit")) {
-            String id = request.getParameter("id");
-            Admin admin = adminService.getAdmin(id);
-            request.setAttribute("admin", admin);
-            request.getRequestDispatcher("/admin/ManageAdminEdit.jsp").forward(request, response);
-        } else if (action.equals("delete")) {
-            String id = request.getParameter("id");
-            adminService.deleteAdmin(id);
-            response.sendRedirect(request.getContextPath() + "/admin");
-        } else if (action.equals("logout")) {
-            session.invalidate();
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Unexpected error occurred: " + e.getMessage());
+            request.getRequestDispatcher("/admin/AdminDashhome.jsp").forward(request, response);
         }
     }
 
@@ -97,56 +192,269 @@ public class AdminServlet extends HttpServlet {
 
         String action = request.getParameter("action");
 
-        if (action.equals("create")) {
-            String id = request.getParameter("id");
-            String name = request.getParameter("name");
-            String email = request.getParameter("email");
-            String password = request.getParameter("password");
-            Part picturePart = request.getPart("filename");
+        try {
+            if (action.equals("create")) {
+                String id = request.getParameter("id");
+                String name = request.getParameter("name");
+                String email = request.getParameter("email");
+                String password = request.getParameter("password");
+                Part picturePart = request.getPart("filename");
 
-            String filename = handlePhotoUpload(picturePart, "uploads");
+                String filename = handlePhotoUpload(picturePart, "uploads");
 
-            Admin admin = new Admin();
-            admin.setId(id);
-            admin.setName(name);
-            admin.setEmail(email);
-            admin.setPassword(password);
-            admin.setFilename(filename);
-
-            if (adminService.createAdmin(admin)) {
-                response.sendRedirect(request.getContextPath() + "/admin");
-            } else {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            }
-        } else if (action.equals("update")) {
-            String id = request.getParameter("id");
-            String name = request.getParameter("name");
-            String email = request.getParameter("email");
-            String password = request.getParameter("password");
-            Part picturePart = request.getPart("filename");
-
-            String filename = handlePhotoUpload(picturePart, "uploads");
-
-            Admin admin = adminService.getAdmin(id);
-            admin.setName(name);
-            admin.setEmail(email);
-            admin.setPassword(password);
-            if (filename != null) {
+                Admin admin = new Admin();
+                admin.setId(id);
+                admin.setName(name);
+                admin.setEmail(email);
+                admin.setPassword(password);
                 admin.setFilename(filename);
-            }
 
-            if (adminService.updateAdmin(admin)) {
-                response.sendRedirect(request.getContextPath() + "/admin");
-            } else {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                if (adminService.createAdmin(admin)) {
+                    response.sendRedirect(request.getContextPath() + "/admin");
+                } else {
+                    request.setAttribute("errorMessage", "Error creating admin. Admin ID or email might already exist.");
+                    request.getRequestDispatcher("/admin/ManageAdminsCreate.jsp").forward(request, response);
+                }
+            } else if (action.equals("update")) {
+                String id = request.getParameter("id");
+                String name = request.getParameter("name");
+                String email = request.getParameter("email");
+                String password = request.getParameter("password");
+                Part picturePart = request.getPart("filename");
+
+                String filename = handlePhotoUpload(picturePart, "uploads");
+
+                Admin admin = adminService.getAdmin(id);
+                admin.setName(name);
+                admin.setEmail(email);
+                admin.setPassword(password);
+                if (filename != null) {
+                    admin.setFilename(filename);
+                }
+
+                if (adminService.updateAdmin(admin)) {
+                    response.sendRedirect(request.getContextPath() + "/admin");
+                } else {
+                    request.setAttribute("errorMessage", "Error updating admin. Email might already exist.");
+                    request.getRequestDispatcher("/admin/ManageAdminEdit.jsp").forward(request, response);
+                }
+            } else if (action.equals("delete")) {
+                String id = request.getParameter("id");
+                if (adminService.deleteAdmin(id)) {
+                    response.sendRedirect(request.getContextPath() + "/admin");
+                } else {
+                    request.setAttribute("errorMessage", "Error deleting admin. Admin may not exist.");
+                    request.getRequestDispatcher("/admin/ManageAllAdmin.jsp").forward(request, response);
+                }
+            } else if (action.equals("searchPatients")) {
+                String searchQuery = request.getParameter("searchQuery");
+                List<Patient> patients;
+                try {
+                    if (searchQuery == null || searchQuery.trim().isEmpty()) {
+                        patients = patientService.getAllPatients();
+                    } else {
+                        patients = searchPatients(searchQuery);
+                    }
+                    request.setAttribute("patients", patients);
+                    request.setAttribute("searchQuery", searchQuery);
+                    request.getRequestDispatcher("/admin/ViewAllPatients.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to fetch patients: " + e.getMessage());
+                    request.getRequestDispatcher("/admin/ViewAllPatients.jsp").forward(request, response);
+                }
+            } else if (action.equals("createDoctor")) {
+                String id = request.getParameter("id");
+                String name = request.getParameter("name");
+                String specialty = request.getParameter("specialty");
+                String qualifications = request.getParameter("qualifications");
+                String email = request.getParameter("email");
+                String phone = request.getParameter("phone");
+                String password = request.getParameter("password");
+                Part picturePart = request.getPart("picture");
+
+                String picture = handlePhotoUpload(picturePart, "uploads");
+
+                Doctor doctor = new Doctor();
+                doctor.setId(id);
+                doctor.setName(name);
+                doctor.setSpecialty(specialty);
+                doctor.setQualifications(qualifications);
+                doctor.setEmail(email);
+                doctor.setPhone(phone);
+                doctor.setPicture(picture);
+                doctor.setPassword(password);
+
+                try {
+                    if (doctorService.createDoctor(doctor)) {
+                        response.sendRedirect(request.getContextPath() + "/admin?action=viewDoctors");
+                    } else {
+                        request.setAttribute("errorMessage", "Error creating doctor. Email might already exist or invalid data provided.");
+                        request.getRequestDispatcher("/admin/ManageDoctorCreate.jsp").forward(request, response);
+                    }
+                } catch (SQLException e) {
+                    String errorMessage = e.getMessage().contains("Duplicate entry") 
+                        ? "Error creating doctor: Email already exists."
+                        : "Failed to create doctor: " + e.getMessage();
+                    request.setAttribute("errorMessage", errorMessage);
+                    request.getRequestDispatcher("/admin/ManageDoctorCreate.jsp").forward(request, response);
+                }
+            } else if (action.equals("updateDoctor")) {
+                String id = request.getParameter("id");
+                String name = request.getParameter("name");
+                String specialty = request.getParameter("specialty");
+                String qualifications = request.getParameter("qualifications");
+                String email = request.getParameter("email");
+                String phone = request.getParameter("phone");
+                String password = request.getParameter("password");
+                Part picturePart = request.getPart("picture");
+
+                String picture = handlePhotoUpload(picturePart, "uploads");
+
+                Doctor doctor = doctorService.getDoctor(id);
+                doctor.setName(name);
+                doctor.setSpecialty(specialty);
+                doctor.setQualifications(qualifications);
+                doctor.setEmail(email);
+                doctor.setPhone(phone);
+                doctor.setPassword(password);
+                if (picture != null) {
+                    doctor.setPicture(picture);
+                }
+
+                try {
+                    if (doctorService.updateDoctor(doctor)) {
+                        response.sendRedirect(request.getContextPath() + "/admin?action=viewDoctors");
+                    } else {
+                        request.setAttribute("errorMessage", "Error updating doctor. Email might already exist or invalid data provided.");
+                        request.setAttribute("doctor", doctor);
+                        request.getRequestDispatcher("/admin/ManageDoctorUpdate.jsp").forward(request, response);
+                    }
+                } catch (SQLException e) {
+                    String errorMessage = e.getMessage().contains("Duplicate entry") 
+                        ? "Error updating doctor: Email already exists."
+                        : "Failed to update doctor: " + e.getMessage();
+                    request.setAttribute("errorMessage", errorMessage);
+                    request.setAttribute("doctor", doctor);
+                    request.getRequestDispatcher("/admin/ManageDoctorUpdate.jsp").forward(request, response);
+                }
+            } else if (action.equals("searchDoctors")) {
+                String searchQuery = request.getParameter("searchQuery");
+                List<Doctor> doctors;
+                try {
+                    if (searchQuery == null || searchQuery.trim().isEmpty()) {
+                        doctors = doctorService.getAllDoctors();
+                    } else {
+                        doctors = searchDoctors(searchQuery);
+                    }
+                    request.setAttribute("doctors", doctors);
+                    request.setAttribute("searchQuery", searchQuery);
+                    request.getRequestDispatcher("/admin/ViewAllDoctors.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to fetch doctors: " + e.getMessage());
+                    request.getRequestDispatcher("/admin/ViewAllDoctors.jsp").forward(request, response);
+                }
+            } else if (action.equals("createPatient")) {
+                String id = request.getParameter("id");
+                String phoneNumber = request.getParameter("phoneNumber");
+                String name = request.getParameter("name");
+                String gender = request.getParameter("gender");
+                String admittedTime = request.getParameter("admittedTime");
+                String gmail = request.getParameter("gmail");
+                String password = request.getParameter("password");
+
+                Patient patient = new Patient();
+                patient.setId(id);
+                patient.setPhoneNumber(phoneNumber);
+                patient.setName(name);
+                patient.setGender(gender);
+                patient.setAdmittedTime(admittedTime);
+                patient.setGmail(gmail);
+                patient.setPassword(password);
+
+                try {
+                    if (patientService.createPatient(patient)) {
+                        response.sendRedirect(request.getContextPath() + "/admin?action=viewPatients");
+                    } else {
+                        request.setAttribute("errorMessage", "Error creating patient. Email might already exist or invalid data provided.");
+                        request.getRequestDispatcher("/patient/ManagePatientCreate.jsp").forward(request, response);
+                    }
+                } catch (SQLException e) {
+                    String errorMessage = e.getMessage().contains("Duplicate entry") 
+                        ? "Error creating patient: Email already exists."
+                        : "Failed to create patient: " + e.getMessage();
+                    request.setAttribute("errorMessage", errorMessage);
+                    request.getRequestDispatcher("/admin/ManagePatientCreate.jsp").forward(request, response);
+                }
+            } else if (action.equals("sendAmbulance")) {
+                String patientId = request.getParameter("patientId");
+                String pickupLocation = request.getParameter("pickupLocation");
+                String destination = request.getParameter("destination");
+                String requestDate = request.getParameter("requestDate");
+                String requestTime = request.getParameter("requestTime");
+
+                try {
+                    boolean isSent = patientService.sendAmbulance(patientId, pickupLocation, destination, requestDate, requestTime);
+                    if (isSent) {
+                        request.setAttribute("successMessage", "Ambulance sent successfully!");
+                    } else {
+                        request.setAttribute("errorMessage", "Failed to send ambulance. No ambulances available or patient ID does not exist.");
+                    }
+                    // Fetch updated ambulance count
+                    int availableAmbulances = patientService.getAvailableAmbulanceCount();
+                    request.setAttribute("availableAmbulances", availableAmbulances);
+                    request.getRequestDispatcher("/admin/ManageAmbulance.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    request.setAttribute("errorMessage", "Failed to send ambulance: " + e.getMessage());
+                    try {
+                        int availableAmbulances = patientService.getAvailableAmbulanceCount();
+                        request.setAttribute("availableAmbulances", availableAmbulances);
+                    } catch (SQLException ex) {
+                        request.setAttribute("errorMessage", "Failed to fetch ambulance count: " + ex.getMessage());
+                    }
+                    request.getRequestDispatcher("/admin/ManageAmbulance.jsp").forward(request, response);
+                }
             }
-        } else if (action.equals("delete")) {
-            String id = request.getParameter("id");
-            if (adminService.deleteAdmin(id)) {
-                response.sendRedirect(request.getContextPath() + "/admin");
-            } else {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Unexpected error occurred: " + e.getMessage());
+            request.getRequestDispatcher("/admin/ManageAmbulance.jsp").forward(request, response);
+        }
+    }
+
+    private List<Patient> searchPatients(String searchQuery) {
+        List<Patient> allPatients;
+        try {
+            allPatients = patientService.getAllPatients();
+        } catch (SQLException e) {
+            allPatients = new ArrayList<>();
+            System.out.println("Error fetching patients for search: " + e.getMessage());
+        }
+        List<Patient> filteredPatients = new ArrayList<>();
+        searchQuery = searchQuery.toLowerCase();
+        for (Patient patient : allPatients) {
+            if (patient.getId().toLowerCase().contains(searchQuery) ||
+                patient.getName().toLowerCase().contains(searchQuery) ||
+                patient.getGmail().toLowerCase().contains(searchQuery) ||
+                patient.getPhoneNumber().toLowerCase().contains(searchQuery)) {
+                filteredPatients.add(patient);
             }
         }
+        return filteredPatients;
+    }
+
+    private List<Doctor> searchDoctors(String searchQuery) throws SQLException {
+        List<Doctor> allDoctors = doctorService.getAllDoctors();
+        List<Doctor> filteredDoctors = new ArrayList<>();
+        searchQuery = searchQuery.toLowerCase();
+        for (Doctor doctor : allDoctors) {
+            if (doctor.getId().toLowerCase().contains(searchQuery) ||
+                doctor.getName().toLowerCase().contains(searchQuery) ||
+                doctor.getEmail().toLowerCase().contains(searchQuery) ||
+                doctor.getPhone().toLowerCase().contains(searchQuery) ||
+                doctor.getSpecialty().toLowerCase().contains(searchQuery)) {
+                filteredDoctors.add(doctor);
+            }
+        }
+        return filteredDoctors;
     }
 }
