@@ -8,32 +8,86 @@
     <title>Doctor Profiles</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Custom Gradient for Header */
+        .header-gradient {
+            background: linear-gradient(90deg, #134e4a, #2dd4bf);
+        }
+
+        /* Sidebar Hover Effect */
+        .sidebar-link {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link:hover {
+            transform: translateX(10px);
+            background: linear-gradient(90deg, #2dd4bf, #5eead4);
+        }
+
+        /* Card Hover Effect */
+        .doctor-card {
+            transition: all 0.3s ease;
+        }
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+        }
+
+        /* Profile Image Animation */
+        .profile-img {
+            transition: transform 0.3s ease;
+        }
+        .profile-img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #2dd4bf;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        /* Background Overlay for Readability */
+        .main-content {
+            background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
+                        url('${pageContext.request.contextPath}/patient/assets/DoctorProfileBG.jpg') no-repeat center center/cover;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans h-full">
+<body class="bg-gradient-to-br from-gray-50 to-teal-100 font-sans h-full">
     <div class="flex h-full">
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-900 text-white fixed top-0 left-0 h-screen flex flex-col flex-shrink-0"> <!-- Changed to fixed -->
-            <div class="p-5 text-lg font-bold border-b border-gray-800">Patient Portal</div>
+        <aside class="w-64 bg-gray-900 text-white fixed top-0 left-0 h-screen flex flex-col flex-shrink-0">
+            <div class="p-6 text-xl font-bold border-b border-gray-800 flex items-center space-x-3">
+                <i class="fas fa-hospital text-teal-400"></i>
+                <span>Patient Portal</span>
+            </div>
             <nav class="flex-1 p-4">
                 <ul>
-                    <li class="mb-4">
-                        <a href="${pageContext.request.contextPath}/patient" class="flex items-center p-2 hover:bg-gray-700 rounded">
-                            <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                    <li class="mb-3">
+                        <a href="${pageContext.request.contextPath}/patient" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-tachometer-alt mr-3 text-teal-400"></i> Dashboard
                         </a>
                     </li>
-                    <li class="mb-4">
-                        <a href="${pageContext.request.contextPath}/patient?action=channeling" class="flex items-center p-2 hover:bg-gray-700 rounded">
-                            <i class="fas fa-calendar-check mr-3"></i> Appointments
+                    <li class="mb-3">
+                        <a href="${pageContext.request.contextPath}/patient?action=channeling" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-calendar-check mr-3 text-teal-400"></i> Appointments
                         </a>
                     </li>
-                    <li class="mb-4">
-                        <a href="${pageContext.request.contextPath}/patient?action=doctors" class="flex items-center p-2 bg-gray-700 rounded">
-                            <i class="fas fa-user-md mr-3"></i> Doctors
+                    <li class="mb-3">
+                        <a href="${pageContext.request.contextPath}/patient?action=doctors" class="sidebar-link flex items-center p-3 bg-teal-600 rounded text-white">
+                            <i class="fas fa-user-md mr-3 text-teal-200"></i> Doctors
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-2 hover:bg-gray-700 rounded">
-                            <i class="fas fa-cog mr-3"></i> Settings
+                        <a href="${pageContext.request.contextPath}/patient?action=settings" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-cog mr-3 text-teal-400"></i> Settings
                         </a>
                     </li>
                 </ul>
@@ -41,22 +95,22 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col ml-64" style="background-image: url('${pageContext.request.contextPath}/patient/assets/DoctorProfileBG.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;"> <!-- Added ml-64 to offset the fixed sidebar -->
+        <div class="flex-1 flex flex-col ml-64 main-content">
             <!-- Top Navbar -->
-            <header class="bg-white shadow p-4 flex justify-between items-center">
-                <span id="datetime" class="text-xl font-semibold text-gray-800"></span>
-                <div class="flex items-center space-x-4 relative">
+            <header class="header-gradient text-white p-4 flex justify-between items-center shadow-lg">
+                <span id="datetime" class="text-lg font-medium"></span>
+                <div class="flex items-center space-x-4">
                     <div class="relative group">
-                        <img src="patient_dp.jpeg" alt="Patient Profile" class="w-12 h-12 rounded-full border-2 border-gray-300 shadow-sm cursor-pointer object-cover">
-                        <div class="absolute left-1/2 transform -translate-x-1/2 hidden group-hover:flex 
-                                    w-44 h-44 border-2 border-gray-400 rounded-full overflow-hidden shadow-lg bg-white p-1 z-10">
-                            <img src="patient_dp.jpeg" alt="Patient Profile Enlarged" class="w-full h-full object-cover rounded-full">
+                        <img src="${pageContext.request.contextPath}/patient_dp.jpeg" alt="Patient Profile" class="w-10 h-10 rounded-full border-2 border-teal-200 shadow-sm cursor-pointer object-cover profile-img">
+                        <div class="absolute left-1/2 transform -translate-x-1/2 -top-48 hidden group-hover:flex 
+                                    w-40 h-40 border-2 border-teal-300 rounded-full overflow-hidden shadow-xl bg-white p-1 z-50">
+                            <img src="${pageContext.request.contextPath}/patient_dp.jpeg" alt="Patient Profile Enlarged" class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>
-                    <span class="text-gray-700 font-medium">${name != null ? name : "Patient"}</span>
+                    <span class="text-white font-medium">${name != null ? name : "Patient"}</span>
                     <form action="${pageContext.request.contextPath}/patient" method="post">
                         <input type="hidden" name="action" value="logout">
-                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
                             Logout
                         </button>
                     </form>
@@ -64,42 +118,43 @@
             </header>
 
             <!-- Doctor Profiles Content -->
-            <div class="container mx-auto p-6 flex-1">
+            <div class="container mx-auto p-8 flex-1">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Doctor Profiles</h1>
                 <c:if test="${not empty errorMessage}">
-                    <div class="text-red-500 text-center mb-4">${errorMessage}</div>
+                    <div class="text-red-500 text-center mb-6 font-medium bg-red-50 p-3 rounded-md">${errorMessage}</div>
                 </c:if>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     <c:forEach var="doctor" items="${doctors}">
-                        <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="doctor-card bg-white p-6 rounded-xl shadow-md">
                             <div class="flex items-center space-x-4">
-                                <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300">
-                                    <img src="${doctor.picture != null ? doctor.picture : 'default_doctor.jpg'}" 
+                                <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-teal-300">
+                                    <img src="${doctor.picture != null ? doctor.picture : '${pageContext.request.contextPath}/patient/assets/default_doctor.jpg'}" 
                                          alt="Doctor Profile" class="w-full h-full object-cover">
                                 </div>
                                 <div>
-                                    <h2 class="text-2xl font-semibold text-gray-800">${doctor.name}</h2>
-                                    <p class="text-lg text-gray-600">${doctor.specialty}</p>
+                                    <h2 class="text-xl font-semibold text-gray-800">${doctor.name}</h2>
+                                    <p class="text-base text-gray-600">${doctor.specialty}</p>
                                     <p class="text-gray-500 text-sm">
-                                        <i class="fas fa-id-card mr-2"></i> ID: ${doctor.id}
+                                        <i class="fas fa-id-card mr-2 text-teal-500"></i> ID: ${doctor.id}
                                     </p>
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <h3 class="text-lg font-semibold text-gray-800">Qualifications</h3>
-                                <p class="text-gray-600">${doctor.qualifications}</p>
+                                <h3 class="text-base font-semibold text-gray-800">Qualifications</h3>
+                                <p class="text-gray-600 text-sm">${doctor.qualifications}</p>
                             </div>
                             <div class="mt-4">
-                                <h3 class="text-lg font-semibold text-gray-800">Contact</h3>
-                                <p class="text-gray-600">
-                                    <i class="fas fa-envelope mr-2"></i> ${doctor.email}
+                                <h3 class="text-base font-semibold text-gray-800">Contact</h3>
+                                <p class="text-gray-600 text-sm">
+                                    <i class="fas fa-envelope mr-2 text-teal-500"></i> ${doctor.email}
                                 </p>
-                                <p class="text-gray-600">
-                                    <i class="fas fa-phone mr-2"></i> ${doctor.phone}
+                                <p class="text-gray-600 text-sm">
+                                    <i class="fas fa-phone mr-2 text-teal-500"></i> ${doctor.phone}
                                 </p>
                             </div>
                             <div class="mt-4">
                                 <a href="${pageContext.request.contextPath}/patient?action=channeling&doctorId=${doctor.id}" 
-                                   class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                                   class="bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition-colors">
                                     Book Appointment
                                 </a>
                             </div>
