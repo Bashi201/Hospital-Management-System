@@ -74,7 +74,7 @@ public class PatientServlet extends HttpServlet {
             try {
                 List<Doctor> doctors = doctorService.getAllDoctors();
                 request.setAttribute("doctors", doctors);
-                request.getRequestDispatcher("/patient/Doctors.jsp").forward(request, response);
+                request.getRequestDispatcher("/patient/DoctorProfile.jsp").forward(request, response);
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, "Error fetching doctors", e);
                 request.setAttribute("errorMessage", "Error loading doctors: " + e.getMessage());
@@ -83,12 +83,24 @@ public class PatientServlet extends HttpServlet {
         } else if (action.equals("rooms")) {
             try {
                 List<Room> rooms = roomService.getAvailableRooms();
-                request.setAttribute("rooms", rooms);
-                request.getRequestDispatcher("/patient/RoomBookingForm.jsp").forward(request, response);
+                request.setAttribute("availableRooms", rooms);
+                request.getRequestDispatcher("/patient/RoomAvailability.jsp").forward(request, response);
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, "Error fetching rooms", e);
                 request.setAttribute("errorMessage", "Error loading rooms: " + e.getMessage());
                 request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
+            }
+        } else if (action.equals("bookRoomForm")) {
+            try {
+                String roomId = request.getParameter("roomId");
+                List<Room> rooms = roomService.getAvailableRooms();
+                request.setAttribute("availableRooms", rooms);
+                request.setAttribute("selectedRoomId", roomId);
+                request.getRequestDispatcher("/patient/RoomBookingForm.jsp").forward(request, response);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error fetching rooms for booking form", e);
+                request.setAttribute("errorMessage", "Error loading room booking form: " + e.getMessage());
+                request.getRequestDispatcher("/patient/RoomAvailability.jsp").forward(request, response);
             }
         } else if (action.equals("bookAmbulanceForm")) {
             request.getRequestDispatcher("/patient/AmbulanceBookingForm.jsp").forward(request, response);
