@@ -54,8 +54,8 @@
 
         /* Background Overlay for Readability */
         .main-content {
-            background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
-                        url('${pageContext.request.contextPath}/patient/assets/PatientChannelingFormBG.jpg') no-repeat center center/cover;
+            background:  
+                        url('${pageContext.request.contextPath}/patient/assets/PatientChannelingFormBG.png') no-repeat center center/cover;
         }
     </style>
 </head>

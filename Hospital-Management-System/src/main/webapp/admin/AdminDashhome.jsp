@@ -54,8 +54,8 @@
 
         /* Background Overlay for Readability */
         .main-content {
-            background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
-                        url('${pageContext.request.contextPath}/admin/assets/AdminDashHome.jpg') no-repeat center center/cover;
+            background: 
+                        url('${pageContext.request.contextPath}/admin/assets/AdminDashBG.png') no-repeat center center/cover;
         }
     </style>
 </head>

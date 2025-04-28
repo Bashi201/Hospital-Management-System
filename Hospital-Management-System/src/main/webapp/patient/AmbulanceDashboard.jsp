@@ -52,13 +52,28 @@
         .sidebar::-webkit-scrollbar-track {
             background: #1f2937;
         }
+
+        /* Background for Main Content */
+        .main-content {
+            position: relative;
+        }
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('${pageContext.request.contextPath}/patient/assets/AmbulanceDashBG.png') no-repeat center center/cover;
+            z-index: -1;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-teal-100 font-sans h-full">
     <div class="flex h-full">
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 text-white fixed top-0 left-0 h-screen flex flex-col flex-shrink-0 sidebar">
-            <div class="p-6 text-xl font-bold border-b border-gray-800 flex items-center space-x-3">
+            <div class="p-6 text-xl font-bold border-b border-gray-800 flex items-center space-x- regul3">
                 <i class="fas fa-hospital text-teal-400"></i>
                 <span>Patient Portal</span>
             </div>
@@ -89,7 +104,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col ml-64">
+        <div class="flex-1 flex flex-col ml-64 main-content">
             <!-- Top Navbar -->
             <header class="header-gradient text-white p-4 flex justify-between items-center shadow-lg">
                 <span id="datetime" class="text-lg font-medium"></span>
@@ -140,7 +155,7 @@
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric',
-                hour: '2-digit',
+                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit'
             };

@@ -195,6 +195,19 @@
             z-index: 20;
             cursor: pointer;
         }
+        .main-content {
+            position: relative;
+        }
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('${pageContext.request.contextPath}/admin/assets/AdminDashBGWithoutLogo.png') no-repeat center center/cover;
+            z-index: -1;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-blue-50 font-sans h-full">
@@ -237,7 +250,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col ml-64" style="background-image: url('${pageContext.request.contextPath}/admin/assets/RoomManagementBG.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div class="flex-1 flex flex-col ml-64 main-content" style="background-image: url('${pageContext.request.contextPath}/admin/assets/RoomManagementBG.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
             <!-- Top Navbar -->
             <header class="header-gradient text-white p-4 flex justify-between items-center shadow-lg">
                 <span id="datetime" class="text-lg font-medium"></span>

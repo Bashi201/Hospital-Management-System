@@ -52,10 +52,19 @@
             background: #1f2937;
         }
 
-        /* Background Overlay for Readability */
+        /* Background for Main Content */
         .main-content {
-            background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
-                        url('${pageContext.request.contextPath}/patient/assets/PatientDashHome.jpg') no-repeat center center/cover;
+            position: relative;
+        }
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('${pageContext.request.contextPath}/patient/assets/PatientDashHome.png') no-repeat center center/cover;
+            z-index: -1;
         }
     </style>
 </head>
