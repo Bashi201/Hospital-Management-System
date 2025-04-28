@@ -3,9 +3,11 @@ package com.hospital.servlet;
 import com.hospital.model.Admin;
 import com.hospital.model.Doctor;
 import com.hospital.model.Patient;
+import com.hospital.model.Room;
 import com.hospital.service.AdminService;
 import com.hospital.service.DoctorService;
 import com.hospital.service.PatientService;
+import com.hospital.service.RoomService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -27,6 +29,7 @@ public class AdminServlet extends HttpServlet {
     private AdminService adminService;
     private PatientService patientService;
     private DoctorService doctorService;
+    private RoomService roomService;
 
     @Override
     public void init() throws ServletException {
@@ -34,6 +37,7 @@ public class AdminServlet extends HttpServlet {
         adminService = new AdminService();
         patientService = new PatientService();
         doctorService = new DoctorService();
+        roomService = new RoomService();
     }
 
     private String handlePhotoUpload(Part filePart, String uploadDirectory) throws IOException {
@@ -127,6 +131,20 @@ public class AdminServlet extends HttpServlet {
                 Doctor doctor = doctorService.getDoctor(id);
                 request.setAttribute("doctor", doctor);
                 request.getRequestDispatcher("/admin/ManageDoctorUpdate.jsp").forward(request, response);
+            } else if (action.equals("rooms")) {
+                List<Room> rooms = roomService.getAllRooms();
+                request.setAttribute("rooms", rooms);
+                request.getRequestDispatcher("/admin/ManageRooms.jsp").forward(request, response);
+            } else if (action.equals("deleteRoom")) {
+                String id = request.getParameter("id");
+                if (roomService.deleteRoom(id)) {
+                    response.sendRedirect(request.getContextPath() + "/admin?action=rooms");
+                } else {
+                    request.setAttribute("errorMessage", "Failed to delete room. It may be referenced or does not exist.");
+                    List<Room> rooms = roomService.getAllRooms();
+                    request.setAttribute("rooms", rooms);
+                    request.getRequestDispatcher("/admin/ManageRooms.jsp").forward(request, response);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -248,7 +266,7 @@ public class AdminServlet extends HttpServlet {
                 String password = request.getParameter("password");
                 Part picturePart = request.getPart("picture");
 
-                String picture = handlePhotoUpload(picturePart, "uploads");
+                String picture = handlePhotoUpload(picturePart, "Uploads");
 
                 Doctor doctor = doctorService.getDoctor(id);
                 doctor.setName(name);
@@ -302,6 +320,28 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     request.setAttribute("errorMessage", "Error creating patient. Email might already exist or invalid data provided.");
                     request.getRequestDispatcher("/patient/ManagePatientCreate.jsp").forward(request, response);
+                }
+            } else if (action.equals("createRoom")) {
+                String id = request.getParameter("id");
+                String type = request.getParameter("type");
+                String price = request.getParameter("price");
+                String availability = request.getParameter("availability");
+                String description = request.getParameter("description");
+
+                Room room = new Room();
+                room.setId(id);
+                room.setType(type);
+                room.setPrice(price);
+                room.setAvailability(availability);
+                room.setDescription(description);
+
+                if (roomService.createRoom(room)) {
+                    response.sendRedirect(request.getContextPath() + "/admin?action=rooms");
+                } else {
+                    request.setAttribute("errorMessage", "Error creating room. ID might already exist.");
+                    List<Room> rooms = roomService.getAllRooms();
+                    request.setAttribute("rooms", rooms);
+                    request.getRequestDispatcher("/admin/ManageRooms.jsp").forward(request, response);
                 }
             }
         } catch (SQLException e) {
