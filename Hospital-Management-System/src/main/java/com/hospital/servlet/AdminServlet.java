@@ -16,9 +16,13 @@ import javax.servlet.http.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import com.hospital.util.DBConnection;
 
 @WebServlet("/admin")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
@@ -145,6 +149,32 @@ public class AdminServlet extends HttpServlet {
                     request.setAttribute("rooms", rooms);
                     request.getRequestDispatcher("/admin/ManageRooms.jsp").forward(request, response);
                 }
+            } else if (action.equals("salary")) {
+                // Fetch admins and doctors to display in the payroll table
+                List<Admin> admins = adminService.getAllAdmins();
+                List<Doctor> doctors = doctorService.getAllDoctors();
+                request.setAttribute("admins", admins);
+                request.setAttribute("doctors", doctors);
+                request.getRequestDispatcher("/admin/PayrollManagement.jsp").forward(request, response);
+            } else if (action.equals("manageEmployees")) {
+                // Fetch admins and doctors for Manage Employees page
+                List<Admin> admins = adminService.getAllAdmins();
+                List<Doctor> doctors = doctorService.getAllDoctors();
+                request.setAttribute("admins", admins);
+                request.setAttribute("doctors", doctors);
+                request.getRequestDispatcher("/admin/ManageEmployees.jsp").forward(request, response);
+            } else if (action.equals("manageDeductions")) {
+                // Fetch paysheets from paysheets table for deductions
+                List<Paysheet> paysheets = getAllPaysheets();
+                System.out.println("Fetched " + paysheets.size() + " paysheets for deductions"); // Debug log
+                request.setAttribute("paysheets", paysheets); // Use paysheets instead of deductions
+                request.getRequestDispatcher("/admin/ManageDeductions.jsp").forward(request, response);
+            } else if (action.equals("viewPaysheets")) {
+                // Fetch paysheets from paysheets table
+                List<Paysheet> paysheets = getAllPaysheets();
+                System.out.println("Fetched " + paysheets.size() + " paysheets"); // Debug log
+                request.setAttribute("paysheets", paysheets);
+                request.getRequestDispatcher("/admin/ViewPaysheets.jsp").forward(request, response);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -314,7 +344,6 @@ public class AdminServlet extends HttpServlet {
                 patient.setAdmittedTime(admittedTime);
                 patient.setGmail(gmail);
                 patient.setPassword(password);
-
                 if (patientService.createPatient(patient)) {
                     response.sendRedirect(request.getContextPath() + "/admin?action=viewPatients");
                 } else {
@@ -343,6 +372,39 @@ public class AdminServlet extends HttpServlet {
                     request.setAttribute("rooms", rooms);
                     request.getRequestDispatcher("/admin/ManageRooms.jsp").forward(request, response);
                 }
+            } else if (action.equals("savePayroll")) {
+                String month = request.getParameter("month");
+                String[] employeeIds = request.getParameterValues("employeeIds");
+                String[] employeeNames = request.getParameterValues("employeeNames");
+                String[] positions = request.getParameterValues("positions");
+                String[] grossSalaries = request.getParameterValues("grossSalaries");
+                String[] deductions = request.getParameterValues("deductions");
+                String[] overtimes = request.getParameterValues("overtimes");
+                String[] bonuses = request.getParameterValues("bonuses");
+                String[] netPays = request.getParameterValues("netPays");
+
+                Connection conn = DBConnection.getConnection();
+                String sql = "INSERT INTO paysheets (employee_id, employee_name, position, month, gross_salary, deductions, overtime, bonus, net_pay) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+
+                for (int i = 0; i < employeeIds.length; i++) {
+                    if (employeeIds[i] != null && !employeeIds[i].isEmpty()) {
+                        stmt.setString(1, employeeIds[i]);
+                        stmt.setString(2, employeeNames[i]);
+                        stmt.setString(3, positions[i]);
+                        stmt.setString(4, month);
+                        stmt.setDouble(5, Double.parseDouble(grossSalaries[i] != null && !grossSalaries[i].isEmpty() ? grossSalaries[i] : "0"));
+                        stmt.setDouble(6, Double.parseDouble(deductions[i] != null && !deductions[i].isEmpty() ? deductions[i] : "0"));
+                        stmt.setDouble(7, Double.parseDouble(overtimes[i] != null && !overtimes[i].isEmpty() ? overtimes[i] : "0"));
+                        stmt.setDouble(8, Double.parseDouble(bonuses[i] != null && !bonuses[i].isEmpty() ? bonuses[i] : "0"));
+                        stmt.setDouble(9, Double.parseDouble(netPays[i] != null && !netPays[i].isEmpty() ? netPays[i] : "0"));
+                        stmt.executeUpdate();
+                    }
+                }
+
+                stmt.close();
+                conn.close();
+                response.sendRedirect(request.getContextPath() + "/admin?action=salary");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -382,5 +444,82 @@ public class AdminServlet extends HttpServlet {
             }
         }
         return filteredDoctors;
+    }
+
+    // Model class for Paysheet
+    public static class Paysheet {
+        private int paysheetId;
+        private String employeeId;
+        private String employeeName;
+        private String position;
+        private String month;
+        private String year;
+        private double grossSalary;
+        private double deductions;
+        private double overtime;
+        private double bonus;
+        private double netPay;
+        private String createdAt;
+
+        public int getPaysheetId() { return paysheetId; }
+        public void setPaysheetId(int paysheetId) { this.paysheetId = paysheetId; }
+        public String getEmployeeId() { return employeeId; }
+        public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
+        public String getEmployeeName() { return employeeName; }
+        public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
+        public String getPosition() { return position; }
+        public void setPosition(String position) { this.position = position; }
+        public String getMonth() { return month; }
+        public void setMonth(String month) { this.month = month; }
+        public String getYear() { return year; }
+        public void setYear(String year) { this.year = year; }
+        public double getGrossSalary() { return grossSalary; }
+        public void setGrossSalary(double grossSalary) { this.grossSalary = grossSalary; }
+        public double getDeductions() { return deductions; }
+        public void setDeductions(double deductions) { this.deductions = deductions; }
+        public double getOvertime() { return overtime; }
+        public void setOvertime(double overtime) { this.overtime = overtime; }
+        public double getBonus() { return bonus; }
+        public void setBonus(double bonus) { this.bonus = bonus; }
+        public double getNetPay() { return netPay; }
+        public void setNetPay(double netPay) { this.netPay = netPay; }
+        public String getCreatedAt() { return createdAt; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    }
+
+    // Fetch all paysheets
+    private List<Paysheet> getAllPaysheets() throws SQLException {
+        List<Paysheet> paysheets = new ArrayList<>();
+        Connection conn = DBConnection.getConnection();
+        String sql = "SELECT * FROM paysheets";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Paysheet paysheet = new Paysheet();
+            paysheet.setPaysheetId(rs.getInt("paysheet_id"));
+            paysheet.setEmployeeId(rs.getString("employee_id"));
+            paysheet.setEmployeeName(rs.getString("employee_name"));
+            paysheet.setPosition(rs.getString("position"));
+            String fullMonth = rs.getString("month");
+            if (fullMonth != null && fullMonth.matches("\\d{4}-\\d{2}")) {
+                String[] parts = fullMonth.split("-");
+                paysheet.setYear(parts[0]);
+                paysheet.setMonth(parts[1]);
+            } else {
+                paysheet.setYear("");
+                paysheet.setMonth(fullMonth != null ? fullMonth : "");
+            }
+            paysheet.setGrossSalary(rs.getDouble("gross_salary"));
+            paysheet.setDeductions(rs.getDouble("deductions"));
+            paysheet.setOvertime(rs.getDouble("overtime"));
+            paysheet.setBonus(rs.getDouble("bonus"));
+            paysheet.setNetPay(rs.getDouble("net_pay"));
+            paysheet.setCreatedAt(rs.getString("created_at"));
+            paysheets.add(paysheet);
+        }
+        rs.close();
+        stmt.close();
+        conn.close();
+        return paysheets;
     }
 }

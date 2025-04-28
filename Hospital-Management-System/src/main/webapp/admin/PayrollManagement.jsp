@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -202,7 +203,7 @@
             <div class="container mx-auto p-8 flex-1">
                 <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Payroll Management System</h1>
                 <div class="max-w-6xl mx-auto">
-                    <!-- User-Friendly Buttons for Employee, Deductions, Income -->
+                    <!-- User-Friendly Buttons for Employee, Deductions, Paysheets -->
                     <div class="flex space-x-4 mb-6">
                         <a href="${pageContext.request.contextPath}/admin?action=manageEmployees" class="action-button">
                             <i class="fas fa-users"></i> Manage Employees
@@ -210,8 +211,8 @@
                         <a href="${pageContext.request.contextPath}/admin?action=manageDeductions" class="action-button">
                             <i class="fas fa-minus-circle"></i> Manage Deductions
                         </a>
-                        <a href="${pageContext.request.contextPath}/admin?action=manageIncome" class="action-button">
-                            <i class="fas fa-money-bill-wave"></i> Manage Income
+                        <a href="${pageContext.request.contextPath}/admin?action=viewPaysheets" class="action-button">
+                            <i class="fas fa-money-bill-wave"></i> View Paysheets
                         </a>
                     </div>
 
@@ -220,7 +221,7 @@
                         <div class="flex-1">
                             <label class="block text-gray-700 font-medium mb-1">Pay month</label>
                             <div class="month-year-picker">
-                                <select id="month-picker" class="flex-1">
+                                <select id="month-picker" name="month" class="flex-1">
                                     <option value="01">January</option>
                                     <option value="02">February</option>
                                     <option value="03" selected>March</option>
@@ -234,7 +235,7 @@
                                     <option value="11">November</option>
                                     <option value="12">December</option>
                                 </select>
-                                <input type="number" id="year-picker" class="w-24" value="2025" min="2000" max="2099">
+                                <input type="number" id="year-picker" name="year" class="w-24" value="2025" min="2000" max="2099">
                             </div>
                         </div>
                     </div>
@@ -246,70 +247,110 @@
 
                     <!-- Payroll Table -->
                     <div class="overflow-x-auto">
-                        <table class="payroll-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Position</th>
-                                    <th>Gross Salary</th>
-                                    <th>Deductions</th>
-                                    <th>Overtime</th>
-                                    <th>Bonus</th>
-                                    <th>Net Pay</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="payroll-table-body">
-                                <tr>
-                                    <td><input type="text" placeholder="ID" class="id"></td>
-                                    <td><input type="text" placeholder="Name" class="name"></td>
-                                    <td><input type="text" placeholder="Position"></td>
-                                    <td><input type="text" placeholder="Gross Salary" class="gross-salary"></td>
-                                    <td><input type="text" placeholder="Deductions" class="deductions"></td>
-                                    <td><input type="text" placeholder="Overtime" class="overtime"></td>
-                                    <td><input type="text" placeholder="Bonus" class="bonus"></td>
-                                    <td><input type="text" placeholder="Net Pay" class="net-pay"></td>
-                                    <td class="text-center">
-                                        <button class="text-blue-500 hover:text-blue-700">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input type="text" placeholder="ID" class="id"></td>
-                                    <td><input type="text" placeholder="Name" class="name"></td>
-                                    <td><input type="text" placeholder="Position"></td>
-                                    <td><input type="text" placeholder="Gross Salary" class="gross-salary"></td>
-                                    <td><input type="text" placeholder="Deductions" class="deductions"></td>
-                                    <td><input type="text" placeholder="Overtime" class="overtime"></td>
-                                    <td><input type="text" placeholder="Bonus" class="bonus"></td>
-                                    <td><input type="text" placeholder="Net Pay" class="net-pay"></td>
-                                    <td class="text-center">
-                                        <button class="text-blue-500 hover:text-blue-700">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <!-- Total Row -->
-                                <tr class="total-row">
-                                    <td colspan="3" class="text-center">Total</td>
-                                    <td id="total-gross-salary">0.00</td>
-                                    <td id="total-deductions">0.00</td>
-                                    <td id="total-overtime">0.00</td>
-                                    <td id="total-bonus">0.00</td>
-                                    <td id="total-net-pay">0.00</td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Save, Clear, and Pay Slips Buttons -->
-                    <div class="flex space-x-4 mt-6">
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Save</button>
-                        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">Clear</button>
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Pay Slips</button>
+                        <form id="payroll-form" action="${pageContext.request.contextPath}/admin" method="post">
+                            <input type="hidden" name="action" value="savePayroll">
+                            <input type="hidden" id="month-input" name="month" value="">
+                            <table class="payroll-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Position</th>
+                                        <th>Gross Salary</th>
+                                        <th>Deductions</th>
+                                        <th>Overtime</th>
+                                        <th>Bonus</th>
+                                        <th>Net Pay</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payroll-table-body">
+                                    <!-- Admins -->
+                                    <c:forEach var="admin" items="${admins}">
+                                        <tr class="payroll-row">
+                                            <td>
+                                                <input type="text" name="employeeIds" class="id" value="${admin.id}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="employeeNames" class="name" value="${admin.name}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="positions" value="Admin" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="grossSalaries" class="gross-salary" placeholder="Gross Salary" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="deductions" class="deductions" placeholder="Deductions" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="overtimes" class="overtime" placeholder="Overtime" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="bonuses" class="bonus" placeholder="Bonus" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="netPays" class="net-pay" placeholder="Net Pay" step="0.01" readonly>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="text-blue-500 hover:text-blue-700 remove-row">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                    <!-- Doctors -->
+                                    <c:forEach var="doctor" items="${doctors}">
+                                        <tr class="payroll-row">
+                                            <td>
+                                                <input type="text" name="employeeIds" class="id" value="${doctor.id}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="employeeNames" class="name" value="${doctor.name}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="positions" value="Doctor" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="grossSalaries" class="gross-salary" placeholder="Gross Salary" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="deductions" class="deductions" placeholder="Deductions" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="overtimes" class="overtime" placeholder="Overtime" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="bonuses" class="bonus" placeholder="Bonus" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="netPays" class="net-pay" placeholder="Net Pay" step="0.01" readonly>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="text-blue-500 hover:text-blue-700 remove-row">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                    <!-- Total Row -->
+                                    <tr class="total-row">
+                                        <td colspan="3" class="text-center">Total</td>
+                                        <td id="total-gross-salary">0.00</td>
+                                        <td id="total-deductions">0.00</td>
+                                        <td id="total-overtime">0.00</td>
+                                        <td id="total-bonus">0.00</td>
+                                        <td id="total-net-pay">0.00</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- Save and Clear Buttons -->
+                            <div class="flex space-x-4 mt-6">
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Save</button>
+                                <button type="button" id="clear-button" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">Clear</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -335,41 +376,31 @@
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
+        // Function to calculate net pay for a row
+        function calculateNetPay(row) {
+            const grossSalary = parseFloat(row.querySelector('.gross-salary').value) || 0;
+            const deductions = parseFloat(row.querySelector('.deductions').value) || 0;
+            const overtime = parseFloat(row.querySelector('.overtime').value) || 0;
+            const bonus = parseFloat(row.querySelector('.bonus').value) || 0;
+            const netPay = grossSalary - deductions + overtime + bonus;
+            row.querySelector('.net-pay').value = netPay.toFixed(2);
+            return netPay;
+        }
+
         // Function to calculate totals
         function calculateTotals() {
             let totalGrossSalary = 0, totalDeductions = 0, totalOvertime = 0, totalBonus = 0, totalNetPay = 0;
 
-            // Sum Gross Salary
-            document.querySelectorAll('.gross-salary').forEach(input => {
-                const value = parseFloat(input.value) || 0;
-                totalGrossSalary += value;
+            document.querySelectorAll('.payroll-row').forEach(row => {
+                if (row.style.display !== 'none') {
+                    totalGrossSalary += parseFloat(row.querySelector('.gross-salary').value) || 0;
+                    totalDeductions += parseFloat(row.querySelector('.deductions').value) || 0;
+                    totalOvertime += parseFloat(row.querySelector('.overtime').value) || 0;
+                    totalBonus += parseFloat(row.querySelector('.bonus').value) || 0;
+                    totalNetPay += parseFloat(row.querySelector('.net-pay').value) || 0;
+                }
             });
 
-            // Sum Deductions
-            document.querySelectorAll('.deductions').forEach(input => {
-                const value = parseFloat(input.value) || 0;
-                totalDeductions += value;
-            });
-
-            // Sum Overtime
-            document.querySelectorAll('.overtime').forEach(input => {
-                const value = parseFloat(input.value) || 0;
-                totalOvertime += value;
-            });
-
-            // Sum Bonus
-            document.querySelectorAll('.bonus').forEach(input => {
-                const value = parseFloat(input.value) || 0;
-                totalBonus += value;
-            });
-
-            // Sum Net Pay
-            document.querySelectorAll('.net-pay').forEach(input => {
-                const value = parseFloat(input.value) || 0;
-                totalNetPay += value;
-            });
-
-            // Update the total row
             document.getElementById('total-gross-salary').textContent = totalGrossSalary.toFixed(2);
             document.getElementById('total-deductions').textContent = totalDeductions.toFixed(2);
             document.getElementById('total-overtime').textContent = totalOvertime.toFixed(2);
@@ -380,7 +411,7 @@
         // Search functionality
         document.getElementById('search-input').addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#payroll-table-body tr:not(.total-row)');
+            const rows = document.querySelectorAll('.payroll-row');
 
             rows.forEach(row => {
                 const id = row.querySelector('.id').value.toLowerCase();
@@ -392,13 +423,39 @@
                 }
             });
 
-            // Recalculate totals after filtering
             calculateTotals();
         });
 
         // Add event listeners to inputs for real-time updates
-        document.querySelectorAll('.gross-salary, .deductions, .overtime, .bonus, .net-pay').forEach(input => {
-            input.addEventListener('input', calculateTotals);
+        document.querySelectorAll('.gross-salary, .deductions, .overtime, .bonus').forEach(input => {
+            input.addEventListener('input', function() {
+                const row = this.closest('tr');
+                calculateNetPay(row);
+                calculateTotals();
+            });
+        });
+
+        // Remove row functionality
+        document.querySelectorAll('.remove-row').forEach(button => {
+            button.addEventListener('click', function() {
+                const row = this.closest('tr');
+                row.remove();
+                calculateTotals();
+            });
+        });
+
+        // Clear button functionality
+        document.getElementById('clear-button').addEventListener('click', function() {
+            document.querySelectorAll('.gross-salary, .deductions, .overtime, .bonus, .net-pay').forEach(input => {
+                input.value = '';
+            });
+            calculateTotals();
+        });
+
+        // Set the month value before form submission
+        document.getElementById('payroll-form').addEventListener('submit', function() {
+            const month = document.getElementById('year-picker').value + '-' + document.getElementById('month-picker').value;
+            document.getElementById('month-input').value = month;
         });
 
         // Initial calculation
