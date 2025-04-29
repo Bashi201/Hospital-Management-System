@@ -119,10 +119,32 @@ public class DoctorServlet extends HttpServlet {
                 session.invalidate();
                 response.sendRedirect(request.getContextPath() + "/doctor/login");
             } else if (action.equals("confirmAppointment")) {
-                String appointmentId = request.getParameter("appointmentId");
-                // Placeholder for confirm action (not implemented as per requirement)
-                LOGGER.info("Confirm appointment requested for ID: " + appointmentId + " (not implemented)");
-                response.sendRedirect(request.getContextPath() + "/doctor?action=appointments");
+                try {
+                    int appointmentId = Integer.parseInt(request.getParameter("appointmentId"));
+                    LOGGER.info("Confirming appointment ID: " + appointmentId);
+                    boolean confirmed = doctorService.confirmAppointment(appointmentId);
+                    if (confirmed) {
+                        request.setAttribute("successMessage", "Appointment confirmed successfully.");
+                    } else {
+                        request.setAttribute("errorMessage", "Failed to confirm appointment. It may already be confirmed or does not exist.");
+                    }
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error confirming appointment", e);
+                    request.setAttribute("errorMessage", "Error confirming appointment. Please try again.");
+                } catch (NumberFormatException e) {
+                    LOGGER.log(Level.WARNING, "Invalid appointment ID format", e);
+                    request.setAttribute("errorMessage", "Invalid appointment ID.");
+                }
+                // Refresh appointments list
+                try {
+                    var appointments = doctorService.getAppointmentsForDoctor(loggedInDoctor.getId());
+                    request.setAttribute("appointments", appointments);
+                    request.getRequestDispatcher("/doctor/Appointments.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error fetching appointments after confirm", e);
+                    request.setAttribute("errorMessage", "Unable to fetch appointments. Please try again later.");
+                    request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
+                }
             } else if (action.equals("deleteAppointment")) {
                 try {
                     int appointmentId = Integer.parseInt(request.getParameter("appointmentId"));

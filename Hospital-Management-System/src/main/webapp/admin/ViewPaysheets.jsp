@@ -13,6 +13,11 @@
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            position: fixed; /* Make header fixed */
+            top: 0;
+            left: 256px; /* Offset to start after the sidebar */
+            right: 0;
+            z-index: 900; /* Ensure it stays above other content */
         }
 
         /* Sidebar Styling - Ensure it stretches to bottom */

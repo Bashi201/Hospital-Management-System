@@ -210,6 +210,17 @@ public class DoctorService {
         }
     }
 
+    // Confirm an appointment by updating its status to "Confirmed"
+    public boolean confirmAppointment(int appointmentId) throws SQLException {
+        String sql = "UPDATE appointments SET status = 'Confirmed' WHERE id = ? AND status = 'Pending'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, appointmentId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
     // Inner class to represent an appointment
     public static class Appointment {
         private int id;

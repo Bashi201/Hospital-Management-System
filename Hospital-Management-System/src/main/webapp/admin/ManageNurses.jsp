@@ -7,14 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <br>
     <br>
-    <title>Manage Rooms</title>
+    <br>
+    <title>Manage Nurses</title>
     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/admin/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* Custom Gradient for Header */
         .header-gradient {
-             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
             position: fixed; /* Make header fixed */
             top: 0;
             left: 256px; /* Offset to start after the sidebar */
@@ -65,7 +66,6 @@
             font-size: 16px;
         }
         .input-group input,
-        .input-group textarea,
         .input-group select {
             padding-left: 40px;
             width: 100%;
@@ -73,7 +73,6 @@
             transition: all 0.3s ease;
         }
         .input-group input:focus,
-        .input-group textarea:focus,
         .input-group select:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 4px rgba(59, 130, 246, 0.3);
@@ -144,40 +143,40 @@
         }
 
         /* Table Styling */
-        .room-table {
+        .nurse-table {
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             z-index: 10;
         }
-        .room-table thead {
+        .nurse-table thead {
             position: sticky;
             top: 0;
             z-index: 15;
             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
             color: white;
         }
-        .room-table th {
+        .nurse-table th {
             padding: 16px;
             text-transform: uppercase;
             font-size: 12px;
             letter-spacing: 1px;
         }
-        .room-table tbody tr {
+        .nurse-table tbody tr {
             transition: all 0.3s ease;
         }
-        .room-table tbody tr:nth-child(odd) {
+        .nurse-table tbody tr:nth-child(odd) {
             background: #f9fafb;
         }
-        .room-table tbody tr:nth-child(even) {
+        .nurse-table tbody tr:nth-child(even) {
             background: #ffffff;
         }
-        .room-table tbody tr:hover {
+        .nurse-table tbody tr:hover {
             background: linear-gradient(135deg, #eff6ff, #dbeafe);
             transform: scale(1.01);
         }
-        .room-table td {
+        .nurse-table td {
             padding: 14px 16px;
             border-bottom: 1px solid #e5e7eb;
         }
@@ -244,8 +243,13 @@
                         </a>
                     </li>
                     <li class="mb-3">
-                        <a href="${pageContext.request.contextPath}/admin?action=rooms" class="sidebar-link flex items-center p-3 bg-blue-600 rounded text-white">
-                            <i class="fas fa-bed mr-3 text-blue-200"></i> Manage Rooms
+                        <a href="${pageContext.request.contextPath}/admin?action=rooms" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-bed mr-3 text-blue-400"></i> Manage Rooms
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="${pageContext.request.contextPath}/admin?action=nurses" class="sidebar-link flex items-center p-3 bg-blue-600 rounded text-white">
+                            <i class="fas fa-user-nurse mr-3 text-blue-200"></i> Manage Nurses
                         </a>
                     </li>
                     <li>
@@ -258,7 +262,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col ml-64 main-content" style="background-image: url('${pageContext.request.contextPath}/admin/assets/RoomManagementBG.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div class="flex-1 flex flex-col ml-64 main-content">
             <!-- Top Navbar -->
             <header class="header-gradient text-white p-4 flex justify-between items-center shadow-lg">
                 <span id="datetime" class="text-lg font-medium"></span>
@@ -278,11 +282,11 @@
                 </div>
             </header>
 
-            <!-- Room Management -->
+            <!-- Nurse Management -->
             <div class="container mx-auto p-8 flex-1">
                 <div class="mb-8 text-center">
-                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>" alt="Room Icon" class="w-12 h-12 mx-auto mb-2">
-                    <h2 class="text-2xl font-semibold text-gray-800">Manage Rooms</h2>
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/></svg>" alt="Nurse Icon" class="w-12 h-12 mx-auto mb-2">
+                    <h2 class="text-2xl font-semibold text-gray-800">Manage Nurses</h2>
                 </div>
 
                 <c:if test="${not empty errorMessage}">
@@ -291,38 +295,34 @@
 
                 <!-- Instruction for Plus Button -->
                 <div class="text-center mb-6 max-w-7xl mx-auto">
-                    <p class="text-gray-600 bg-blue-50 p-3 rounded-md text-sm font-medium">Use the + button to create a new room</p>
+                    <p class="text-gray-600 bg-blue-50 p-3 rounded-md text-sm font-medium">Use the + button to create a new nurse</p>
                 </div>
 
-                <!-- Room List (Table Layout) -->
+                <!-- Nurse List (Table Layout) -->
                 <div class="table-container max-w-7xl mx-auto">
-                    <table class="room-table min-w-full">
+                    <table class="nurse-table min-w-full">
                         <thead>
                             <tr>
-                                <th class="text-left">Room ID</th>
-                                <th class="text-left">Type</th>
-                                <th class="text-left">Price</th>
-                                <th class="text-left">Availability</th>
-                                <th class="text-left">Description</th>
+                                <th class="text-left">Nurse ID</th>
+                                <th class="text-left">Name</th>
+                                <th class="text-left">Email</th>
+                                <th class="text-left">Phone</th>
+                                <th class="text-left">Shift</th>
                                 <th class="text-left">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="room" items="${rooms}">
+                            <c:forEach var="nurse" items="${nurses}">
                                 <tr>
-                                    <td class="text-sm text-gray-900">${room.id}</td>
-                                    <td class="text-sm text-gray-900">${room.type}</td>
-                                    <td class="text-sm text-gray-900">${room.price}</td>
-                                    <td class="text-sm">
-                                        <span class="flex items-center ${room.availability == 'Available' ? 'text-green-600' : 'text-red-600'} font-medium">
-                                            <i class="fas fa-circle mr-2 text-xs"></i> ${room.availability}
-                                        </span>
-                                    </td>
-                                    <td class="text-sm text-gray-900">${room.description}</td>
+                                    <td class="text-sm text-gray-900">${nurse.id}</td>
+                                    <td class="text-sm text-gray-900">${nurse.name}</td>
+                                    <td class="text-sm text-gray-900">${nurse.email}</td>
+                                    <td class="text-sm text-gray-900">${nurse.phone}</td>
+                                    <td class="text-sm text-gray-900">${nurse.shift}</td>
                                     <td>
-                                        <a href="${pageContext.request.contextPath}/admin?action=deleteRoom&id=${room.id}"
+                                        <a href="${pageContext.request.contextPath}/admin?action=deleteNurse&id=${nurse.id}"
                                            class="delete-button inline-flex items-center px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
-                                           onclick="return confirm('Are you sure you want to delete room ${room.id}?');">
+                                           onclick="return confirm('Are you sure you want to delete nurse ${nurse.id}?');">
                                             <i class="fas fa-trash mr-2"></i> Delete
                                         </a>
                                     </td>
@@ -336,7 +336,7 @@
                 <div class="relative">
                     <button id="toggleForm" class="plus-button fixed bottom-8 right-8 bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700">
                         <i class="fas fa-plus text-2xl"></i>
-                        <span class="tooltip">Click to add a new room</span>
+                        <span class="tooltip">Click to add a new nurse</span>
                     </button>
                 </div>
 
@@ -344,44 +344,50 @@
                 <div id="formModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div class="modal-content bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full">
                         <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xl font-semibold text-gray-800">Create New Room</h3>
+                            <h3 class="text-xl font-semibold text-gray-800">Create New Nurse</h3>
                             <button id="closeForm" class="close-button text-gray-500 hover:text-gray-700">
                                 <i class="fas fa-times text-xl"></i>
                             </button>
                         </div>
-                        <form action="${pageContext.request.contextPath}/admin" method="post" class="space-y-6">
-                            <input type="hidden" name="action" value="createRoom">
+                        <form action="${pageContext.request.contextPath}/admin" method="post" enctype="multipart/form-data" class="space-y-6">
+                            <input type="hidden" name="action" value="createNurse">
                             <div class="input-group">
                                 <i class="fas fa-id-badge"></i>
-                                <input type="text" id="id" name="id" placeholder="Room ID (e.g., R101)" required
+                                <input type="text" id="id" name="id" placeholder="Nurse ID (e.g., N101)" required
                                        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div class="input-group">
-                                <i class="fas fa-home"></i>
-                                <input type="text" id="type" name="type" placeholder="Room Type (e.g., Deluxe)" required
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="name" name="name" placeholder="Name" required
                                        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div class="input-group">
-                                <i class="fas fa-dollar-sign"></i>
-                                <input type="text" id="price" name="price" placeholder="Price (e.g., 5000)" required
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="email" name="email" placeholder="Email" required
                                        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div class="input-group">
-                                <i class="fas fa-check-circle"></i>
-                                <select id="availability" name="availability" required
+                                <i class="fas fa-phone"></i>
+                                <input type="text" id="phone" name="phone" placeholder="Phone" required
+                                       class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="input-group">
+                                <i class="fas fa-clock"></i>
+                                <select id="shift" name="shift" required
                                         class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="Available">Available</option>
-                                    <option value="Booked">Booked</option>
+                                    <option value="Day">Day</option>
+                                    <option value="Night">Night</option>
+                                    <option value="Evening">Evening</option>
                                 </select>
                             </div>
                             <div class="input-group">
-                                <i class="fas fa-info-circle"></i>
-                                <textarea id="description" name="description" placeholder="Description" required
-                                          class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"></textarea>
+                                <i class="fas fa-image"></i>
+                                <input type="file" id="filename" name="filename" accept="image/*"
+                                       class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div class="text-center">
                                 <button type="submit" class="submit-button w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors">
-                                    Create Room
+                                    Create Nurse
                                 </button>
                             </div>
                         </form>

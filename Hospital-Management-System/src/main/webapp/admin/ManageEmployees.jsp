@@ -13,6 +13,11 @@
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            position: fixed; /* Make header fixed */
+            top: 0;
+            left: 256px; /* Offset to start after the sidebar */
+            right: 0;
+            z-index: 900; /* Ensure it stays above other content */
         }
 
         /* Sidebar Hover Effect */
@@ -144,7 +149,7 @@
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-800">Employee List</h2>
                     </div>
-                    <c:if test="${not empty admins or not empty doctors}">
+                    <c:if test="${not empty admins or not empty doctors or not empty nurses}">
                         <div class="overflow-x-auto">
                             <table class="w-full table-auto border-collapse">
                                 <thead>
@@ -177,11 +182,21 @@
                                             <td class="p-3 text-gray-700">${doctor.phone}</td>
                                         </tr>
                                     </c:forEach>
+                                    <!-- Nurses -->
+                                    <c:forEach var="nurse" items="${nurses}">
+                                        <tr class="table-row border-b border-gray-200 bg-white">
+                                            <td class="p-3 text-gray-700">${nurse.id}</td>
+                                            <td class="p-3 text-gray-700">${nurse.name}</td>
+                                            <td class="p-3 text-gray-700">Nurse</td>
+                                            <td class="p-3 text-gray-700">${nurse.email}</td>
+                                            <td class="p-3 text-gray-700">${nurse.phone}</td>
+                                        </tr>
+                                    </c:forEach>
                                 </tbody>
                             </table>
                         </div>
                     </c:if>
-                    <c:if test="${empty admins and empty doctors}">
+                    <c:if test="${empty admins and empty doctors and empty nurses}">
                         <p class="text-gray-500 text-center py-6">No employees found.</p>
                     </c:if>
                     <div class="mt-6 flex justify-end">

@@ -24,15 +24,6 @@
             background: linear-gradient(90deg, #3b82f6, #60a5fa);
         }
 
-        /* Table Row Hover Effect */
-        .table-row {
-            transition: all 0.2s ease;
-        }
-        .table-row:hover {
-            background: linear-gradient(135deg, #eff6ff, #dbeafe);
-            transform: translateX(5px);
-        }
-
         /* Profile Image Animation */
         .profile-img {
             transition: transform 0.3s ease;
@@ -53,7 +44,7 @@
             background: #1f2937;
         }
         
-         .main-content {
+        .main-content {
             position: relative;
         }
         .main-content::before {
@@ -66,7 +57,67 @@
             background: url('${pageContext.request.contextPath}/admin/assets/AdminDashBGWithoutLogo.png') no-repeat center center/cover;
             z-index: -1;
         }
-    </style>
+
+        /* Table Styling */
+        .room-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            z-index: 10;
+        }
+        .room-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 15;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            color: white;
+        }
+        .room-table th {
+            padding: 16px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        .room-table tbody tr {
+            transition: all 0.3s ease;
+        }
+        .room-table tbody tr:nth-child(odd) {
+            background: #f9fafb;
+        }
+        .room-table tbody tr:nth-child(even) {
+            background: #ffffff;
+        }
+        .room-table tbody tr:hover {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            transform: scale(1.01);
+        }
+        .room-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .table-container {
+            max-height: 60vh;
+            overflow-y: auto;
+            z-index: 10;
+        }
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        /* Ensure buttons are clickable */
+        .delete-button {
+            pointer-events: auto;
+            z-index: 20;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-blue-50 font-sans">
@@ -140,35 +191,35 @@
                         </form>
                     </div>
                     <c:if test="${not empty doctors}">
-                        <div class="overflow-x-auto">
-                            <table class="w-full table-auto border-collapse">
+                        <div class="table-container max-w-7xl mx-auto">
+                            <table class="room-table min-w-full">
                                 <thead>
-                                    <tr class="bg-blue-100 text-gray-700">
-                                        <th class="p-3 text-left font-semibold rounded-tl-md">ID</th>
-                                        <th class="p-3 text-left font-semibold">Name</th>
-                                        <th class="p-3 text-left font-semibold">Specialty</th>
-                                        <th class="p-3 text-left font-semibold">Email</th>
-                                        <th class="p-3 text-left font-semibold">Phone</th>
-                                        <th class="p-3 text-left font-semibold rounded-tr-md">Actions</th>
+                                    <tr>
+                                        <th class="text-left">ID</th>
+                                        <th class="text-left">Name</th>
+                                        <th class="text-left">Specialty</th>
+                                        <th class="text-left">Email</th>
+                                        <th class="text-left">Phone</th>
+                                        <th class="text-left">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="doctor" items="${doctors}">
-                                        <tr class="table-row border-b border-gray-200 bg-white">
-                                            <td class="p-3 text-gray-700">${doctor.id}</td>
-                                            <td class="p-3 text-gray-700">${doctor.name}</td>
-                                            <td class="p-3 text-gray-700">${doctor.specialty}</td>
-                                            <td class="p-3 text-gray-700">${doctor.email}</td>
-                                            <td class="p-3 text-gray-700">${doctor.phone}</td>
-                                            <td class="p-3 flex space-x-3">
+                                        <tr>
+                                            <td class="text-sm text-gray-900">${doctor.id}</td>
+                                            <td class="text-sm text-gray-900">${doctor.name}</td>
+                                            <td class="text-sm text-gray-900">${doctor.specialty}</td>
+                                            <td class="text-sm text-gray-900">${doctor.email}</td>
+                                            <td class="text-sm text-gray-900">${doctor.phone}</td>
+                                            <td>
                                                 <a href="${pageContext.request.contextPath}/admin?action=updateDoctor&id=${doctor.id}" 
-                                                   class="text-blue-500 hover:text-blue-700 font-medium flex items-center">
-                                                    <i class="fas fa-edit mr-1"></i> Update
+                                                   class="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
+                                                    <i class="fas fa-edit mr-2"></i> Update
                                                 </a>
                                                 <a href="${pageContext.request.contextPath}/admin?action=deleteDoctor&id=${doctor.id}" 
-                                                   class="text-red-500 hover:text-red-700 font-medium flex items-center" 
+                                                   class="delete-button inline-flex items-center px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors" 
                                                    onclick="return confirm('Are you sure you want to delete this doctor?')">
-                                                    <i class="fas fa-trash mr-1"></i> Delete
+                                                    <i class="fas fa-trash mr-2"></i> Delete
                                                 </a>
                                             </td>
                                         </tr>

@@ -12,7 +12,12 @@
     <style>
         /* Custom Gradient for Header */
         .header-gradient {
-            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            position: fixed; /* Make header fixed */
+            top: 0;
+            left: 256px; /* Offset to start after the sidebar */
+            right: 0;
+            z-index: 900; /* Ensure it stays above other content */
         }
 
         /* Sidebar Hover Effect */
@@ -311,6 +316,40 @@
                                             </td>
                                             <td>
                                                 <input type="text" name="positions" value="Doctor" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="grossSalaries" class="gross-salary" placeholder="Gross Salary" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="deductions" class="deductions" placeholder="Deductions" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="overtimes" class="overtime" placeholder="Overtime" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="bonuses" class="bonus" placeholder="Bonus" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="netPays" class="net-pay" placeholder="Net Pay" step="0.01" readonly>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="text-blue-500 hover:text-blue-700 remove-row">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                    <!-- Nurses -->
+                                    <c:forEach var="nurse" items="${nurses}">
+                                        <tr class="payroll-row">
+                                            <td>
+                                                <input type="text" name="employeeIds" class="id" value="${nurse.id}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="employeeNames" class="name" value="${nurse.name}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="positions" value="Nurse" readonly>
                                             </td>
                                             <td>
                                                 <input type="number" name="grossSalaries" class="gross-salary" placeholder="Gross Salary" step="0.01">
