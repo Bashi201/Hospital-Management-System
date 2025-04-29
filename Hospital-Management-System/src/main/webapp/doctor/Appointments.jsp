@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Appointments</title>
+    <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -77,21 +78,30 @@
                     </div>
                 </c:if>
 
+                <!-- Search Bar -->
+                <div class="mb-6">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search by patient name, date, or time..." 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+
                 <!-- Appointments Table -->
                 <div class="bg-white shadow-md rounded-lg overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200" id="appointmentsTable">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient Name</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white divide-y divide-gray-200" id="appointmentsBody">
                             <c:forEach var="appointment" items="${appointments}">
-                                <tr>
+                                <tr class="appointment-row">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appointment.patientName}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appointment.date}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appointment.time}</td>
@@ -106,15 +116,22 @@
                                             <c:when test="${appointment.status == 'Pending'}">
                                                 <form action="${pageContext.request.contextPath}/doctor?action=confirmAppointment" method="POST" class="inline">
                                                     <input type="hidden" name="appointmentId" value="${appointment.id}">
-                                                    <button type="submit" class="text-blue-600 hover:text-blue-800">
+                                                    <button type="submit" class="text-blue-600 hover:text-blue-800 mr-3">
                                                         <i class="fas fa-check mr-1"></i> Confirm
                                                     </button>
                                                 </form>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="text-gray-500">Confirmed</span>
+                                                <span class="text-gray-500 mr-3">Confirmed</span>
                                             </c:otherwise>
                                         </c:choose>
+                                        <form action="${pageContext.request.contextPath}/doctor?action=deleteAppointment" method="POST" class="inline">
+                                            <input type="hidden" name="appointmentId" value="${appointment.id}">
+                                            <button type="submit" class="text-red-600 hover:text-red-800" 
+                                                    onclick="return confirm('Are you sure you want to delete this appointment?');">
+                                                <i class="fas fa-trash-alt mr-1"></i> Delete
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -149,6 +166,24 @@
         // Update immediately and then every second
         updateDateTime();
         setInterval(updateDateTime, 1000);
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchText = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.appointment-row');
+
+            rows.forEach(row => {
+                const patientName = row.cells[0].textContent.toLowerCase();
+                const date = row.cells[1].textContent.toLowerCase();
+                const time = row.cells[2].textContent.toLowerCase();
+
+                if (patientName.includes(searchText) || date.includes(searchText) || time.includes(searchText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
     </script>
 </body>
 </html>

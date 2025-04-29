@@ -171,4 +171,65 @@ public class DoctorService {
             return false;
         }
     }
+
+    // Fetch all appointments for a specific doctor
+    public List<Appointment> getAppointmentsForDoctor(String doctorId) throws SQLException {
+        List<Appointment> appointments = new ArrayList<>();
+        Connection conn = DBConnection.getConnection();
+        String sql = "SELECT a.id, a.patient_id, a.appointment_date, a.appointment_time, a.status, p.name AS patient_name " +
+                    "FROM appointments a " +
+                    "JOIN patients p ON a.patient_id = p.id " +
+                    "WHERE a.doctor_id = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, doctorId);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Appointment appointment = new Appointment();
+            appointment.setId(rs.getInt("id"));
+            appointment.setPatientId(rs.getString("patient_id"));
+            appointment.setPatientName(rs.getString("patient_name"));
+            appointment.setDate(rs.getString("appointment_date"));
+            appointment.setTime(rs.getString("appointment_time"));
+            appointment.setStatus(rs.getString("status"));
+            appointments.add(appointment);
+        }
+        rs.close();
+        stmt.close();
+        conn.close();
+        return appointments;
+    }
+
+    // Delete an appointment by ID
+    public boolean deleteAppointment(int appointmentId) throws SQLException {
+        String sql = "DELETE FROM appointments WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, appointmentId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    // Inner class to represent an appointment
+    public static class Appointment {
+        private int id;
+        private String patientId;
+        private String patientName;
+        private String date;
+        private String time;
+        private String status;
+
+        public int getId() { return id; }
+        public void setId(int id) { this.id = id; }
+        public String getPatientId() { return patientId; }
+        public void setPatientId(String patientId) { this.patientId = patientId; }
+        public String getPatientName() { return patientName; }
+        public void setPatientName(String patientName) { this.patientName = patientName; }
+        public String getDate() { return date; }
+        public void setDate(String date) { this.date = date; }
+        public String getTime() { return time; }
+        public void setTime(String time) { this.time = time; }
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+    }
 }
