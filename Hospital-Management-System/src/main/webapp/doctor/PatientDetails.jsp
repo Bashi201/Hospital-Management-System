@@ -5,17 +5,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor - Patients</title>
+    <title>Patient Details - ${patient.name}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        .card-hover {
+        .note-card {
             transition: all 0.3s ease;
         }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            background: linear-gradient(135deg, #f5f7fa, #e2e8f0);
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -74,9 +73,14 @@
                 </div>
             </header>
 
-            <!-- Patients Content -->
+            <!-- Patient Details Content -->
             <div class="container mx-auto p-6 flex-1">
-                <h1 class="text-3xl font-bold text-gray-800 mb-6">Confirmed Patients</h1>
+                <div class="flex items-center mb-6">
+                    <a href="${pageContext.request.contextPath}/doctor?action=patients" class="text-purple-600 hover:text-purple-800 mr-4">
+                        <i class="fas fa-arrow-left text-2xl"></i>
+                    </a>
+                    <h1 class="text-3xl font-bold text-gray-800">Patient: ${patient.name}</h1>
+                </div>
 
                 <!-- Success/Error Message -->
                 <c:if test="${not empty successMessage}">
@@ -90,31 +94,54 @@
                     </div>
                 </c:if>
 
-                <!-- Patients Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <c:forEach var="patient" items="${patients}">
-                        <div class="card-hover bg-white p-6 rounded-xl shadow-md flex flex-col">
-                            <div class="flex items-center mb-4">
-                                <i class="fas fa-user-circle text-4xl text-purple-500 mr-3"></i>
-                                <div>
-                                    <h2 class="text-xl font-semibold text-gray-800">${patient.name}</h2>
-                                    <p class="text-sm text-gray-500">ID: ${patient.id}</p>
-                                </div>
-                            </div>
+                <!-- Patient Information -->
+                <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Patient Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600 mb-2"><strong>ID:</strong> ${patient.id}</p>
+                            <p class="text-gray-600 mb-2"><strong>Name:</strong> ${patient.name}</p>
                             <p class="text-gray-600 mb-2"><strong>Gender:</strong> ${patient.gender}</p>
+                        </div>
+                        <div>
                             <p class="text-gray-600 mb-2"><strong>Phone:</strong> ${patient.phoneNumber}</p>
-                            <p class="text-gray-600 mb-4"><strong>Email:</strong> ${patient.gmail}</p>
-                            <a href="${pageContext.request.contextPath}/doctor?action=patientDetails&id=${patient.id}" 
-                               class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-center">
-                                <i class="fas fa-eye mr-2"></i> View Details & Notes
-                            </a>
+                            <p class="text-gray-600 mb-2"><strong>Email:</strong> ${patient.gmail}</p>
+                            <p class="text-gray-600 mb-2"><strong>Admitted Time:</strong> ${patient.admittedTime}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Note Section -->
+                <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Add New Note</h2>
+                    <form action="${pageContext.request.contextPath}/doctor?action=addNote" method="POST">
+                        <input type="hidden" name="patientId" value="${patient.id}">
+                        <div class="mb-4">
+                            <textarea name="noteText" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your notes here..." required></textarea>
+                        </div>
+                        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i> Add Note
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Patient Notes</h2>
+                    <c:if test="${empty notes}">
+                        <p class="text-gray-500">No notes available for this patient.</p>
+                    </c:if>
+                    <c:forEach var="note" items="${notes}">
+                        <div class="note-card border border-gray-200 p-4 rounded-lg mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-sm text-gray-500">Created: ${note.createdAt} | Updated: ${note.updatedAt}</p>
+                                <button onclick="editNote(${note.id}, '${note.noteText}')" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-edit mr-1"></i> Edit
+                                </button>
+                            </div>
+                            <p class="text-gray-700">${note.noteText}</p>
                         </div>
                     </c:forEach>
-                    <c:if test="${empty patients}">
-                        <div class="col-span-full text-center text-gray-500 py-10">
-                            <p>No confirmed patients found.</p>
-                        </div>
-                    </c:if>
                 </div>
             </div>
         </div>
@@ -135,7 +162,37 @@
             const formattedDateTime = now.toLocaleString('en-US', options);
             document.getElementById('datetime').textContent = formattedDateTime;
         }
-    
+
+        function editNote(noteId, noteText) {
+            const newText = prompt("Edit Note:", noteText);
+            if (newText !== null && newText.trim() !== "") {
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = "${pageContext.request.contextPath}/doctor?action=updateNote";
+                
+                const noteIdInput = document.createElement("input");
+                noteIdInput.type = "hidden";
+                noteIdInput.name = "noteId";
+                noteIdInput.value = noteId;
+                form.appendChild(noteIdInput);
+
+                const patientIdInput = document.createElement("input");
+                patientIdInput.type = "hidden";
+                patientIdInput.name = "patientId";
+                patientIdInput.value = "${patient.id}";
+                form.appendChild(patientIdInput);
+
+                const noteTextInput = document.createElement("input");
+                noteTextInput.type = "hidden";
+                noteTextInput.name = "noteText";
+                noteTextInput.value = newText;
+                form.appendChild(noteTextInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
         updateDateTime();
         setInterval(updateDateTime, 1000);
     </script>

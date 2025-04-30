@@ -10,31 +10,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gradient-to-br from-gray-100 to-purple-50 font-sans">
     <div class="flex h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 text-white flex flex-col min-h-screen">
-            <div class="p-5 text-lg font-bold border-b border-gray-800">Doctor Portal</div>
+            <div class="p-5 text-lg font-bold border-b border-gray-800 flex items-center space-x-3">
+                <i class="fas fa-hospital text-purple-400"></i>
+                <span>Doctor Portal</span>
+            </div>
             <nav class="flex-1 p-4">
                 <ul>
                     <li class="mb-4">
-                        <a href="${pageContext.request.contextPath}/doctor" class="flex items-center p-2 hover:bg-gray-700 rounded">
-                            <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                        <a href="${pageContext.request.contextPath}/doctor" class="flex items-center p-2 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-tachometer-alt mr-3 text-purple-400"></i> Dashboard
                         </a>
                     </li>
                     <li class="mb-4">
-                        <a href="${pageContext.request.contextPath}/doctor?action=appointments" class="flex items-center p-2 bg-gray-700 rounded">
-                            <i class="fas fa-calendar-check mr-3"></i> Appointments
+                        <a href="${pageContext.request.contextPath}/doctor?action=appointments" class="flex items-center p-2 bg-purple-600 rounded text-white">
+                            <i class="fas fa-calendar-check mr-3 text-purple-200"></i> Appointments
                         </a>
                     </li>
                     <li class="mb-4">
-                        <a href="${pageContext.request.contextPath}/doctor?action=patients" class="flex items-center p-2 hover:bg-gray-700 rounded">
-                            <i class="fas fa-users mr-3"></i> Patients
+                        <a href="${pageContext.request.contextPath}/doctor?action=patients" class="flex items-center p-2 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-users mr-3 text-purple-400"></i> Patients
                         </a>
                     </li>
                     <li>
-                        <a href="${pageContext.request.contextPath}/doctor?action=rooms" class="flex items-center p-2 hover:bg-gray-700 rounded">
-                            <i class="fas fa-bed mr-3"></i> Room Assignments
+                        <a href="${pageContext.request.contextPath}/doctor?action=rooms" class="flex items-center p-2 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-bed mr-3 text-purple-400"></i> Room Assignments
                         </a>
                     </li>
                 </ul>
@@ -44,19 +47,19 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             <!-- Top Navbar -->
-            <header class="bg-white shadow p-4 flex justify-between items-center">
-                <span id="datetime" class="text-xl font-semibold text-gray-800"></span>
+            <header class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 flex justify-between items-center shadow-lg">
+                <span id="datetime" class="text-lg font-medium"></span>
                 <div class="flex items-center space-x-4 relative">
                     <div class="relative group">
-                        <img src="doctor_dp.jpeg" alt="Doctor Profile" class="w-12 h-12 rounded-full border-2 border-gray-300 shadow-sm cursor-pointer object-cover">
-                        <div class="absolute left-1/2 transform -translate-x-1/2 hidden group-hover:flex 
-                                    w-44 h-44 border-2 border-gray-400 rounded-full overflow-hidden shadow-lg bg-white p-1 z-10">
+                        <img src="doctor_dp.jpeg" alt="Doctor Profile" class="w-10 h-10 rounded-full border-2 border-purple-200 shadow-sm cursor-pointer object-cover">
+                        <div class="absolute left-1/2 transform -translate-x-1/2 -top-40 hidden group-hover:flex 
+                                    w-40 h-40 border-2 border-purple-300 rounded-full overflow-hidden shadow-xl bg-white p-1 z-50">
                             <img src="doctor_dp.jpeg" alt="Doctor Profile Enlarged" class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>
-                    <span class="text-gray-700 font-medium">Welcome, ${name}</span>
+                    <span class="text-white font-medium">Welcome, ${name}</span>
                     <a href="${pageContext.request.contextPath}/doctor?action=logout" 
-                       class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                       class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
                         Logout
                     </a>
                 </div>
@@ -68,12 +71,12 @@
 
                 <!-- Success/Error Message -->
                 <c:if test="${not empty successMessage}">
-                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
                         <p>${successMessage}</p>
                     </div>
                 </c:if>
                 <c:if test="${not empty errorMessage}">
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg" role="alert">
                         <p>${errorMessage}</p>
                     </div>
                 </c:if>
@@ -82,13 +85,13 @@
                 <div class="mb-6">
                     <div class="relative">
                         <input type="text" id="searchInput" placeholder="Search by patient name, date, or time..." 
-                               class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
                         <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
                 </div>
 
                 <!-- Appointments Table -->
-                <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="bg-white p-6 rounded-xl shadow-md">
                     <table class="min-w-full divide-y divide-gray-200" id="appointmentsTable">
                         <thead class="bg-gray-50">
                             <tr>
@@ -116,7 +119,7 @@
                                             <c:when test="${appointment.status == 'Pending'}">
                                                 <form action="${pageContext.request.contextPath}/doctor?action=confirmAppointment" method="POST" class="inline">
                                                     <input type="hidden" name="appointmentId" value="${appointment.id}">
-                                                    <button type="submit" class="text-blue-600 hover:text-blue-800 mr-3">
+                                                    <button type="submit" class="text-purple-600 hover:text-purple-800 mr-3">
                                                         <i class="fas fa-check mr-1"></i> Confirm
                                                     </button>
                                                 </form>

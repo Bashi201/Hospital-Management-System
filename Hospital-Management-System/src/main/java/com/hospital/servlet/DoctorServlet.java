@@ -1,6 +1,7 @@
 package com.hospital.servlet;
 
 import com.hospital.model.Doctor;
+import com.hospital.model.Patient;
 import com.hospital.service.DoctorService;
 
 import javax.servlet.ServletException;
@@ -16,7 +17,7 @@ import java.util.logging.Level;
 
 /**
  * Servlet for handling doctor dashboard and related actions.
- * Maps to "/doctor" and manages dashboard, appointments, patients, rooms, and logout.
+ * Maps to "/doctor" and manages dashboard, appointments, patients, rooms, salary, and logout.
  */
 @WebServlet("/doctor")
 public class DoctorServlet extends HttpServlet {
@@ -72,15 +73,59 @@ public class DoctorServlet extends HttpServlet {
                 request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
             }
         } else if (action.equals("patients")) {
-            // Placeholder for patients page (to be implemented)
-            LOGGER.info("Patients action requested (not implemented yet)");
-            request.setAttribute("errorMessage", "Patients page not implemented yet.");
-            request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
+            try {
+                // Fetch confirmed patients for the logged-in doctor
+                LOGGER.info("Fetching confirmed patients for doctor: " + loggedInDoctor.getId());
+                var patients = doctorService.getConfirmedPatientsForDoctor(loggedInDoctor.getId());
+                request.setAttribute("patients", patients);
+                request.getRequestDispatcher("/doctor/Patients.jsp").forward(request, response);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error fetching patients", e);
+                request.setAttribute("errorMessage", "Unable to fetch patients. Please try again later.");
+                request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
+            }
+        } else if (action.equals("patientDetails")) {
+            try {
+                String patientId = request.getParameter("id");
+                if (patientId == null || patientId.trim().isEmpty()) {
+                    LOGGER.warning("Invalid patient ID in patientDetails action");
+                    request.setAttribute("errorMessage", "Invalid patient ID.");
+                    response.sendRedirect(request.getContextPath() + "/doctor?action=patients");
+                    return;
+                }
+                LOGGER.info("Fetching details for patient ID: " + patientId);
+                Patient patient = doctorService.getPatientById(patientId);
+                if (patient == null) {
+                    request.setAttribute("errorMessage", "Patient not found.");
+                    response.sendRedirect(request.getContextPath() + "/doctor?action=patients");
+                    return;
+                }
+                var notes = doctorService.getPatientNotes(patientId, loggedInDoctor.getId());
+                request.setAttribute("patient", patient);
+                request.setAttribute("notes", notes);
+                request.getRequestDispatcher("/doctor/PatientDetails.jsp").forward(request, response);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error fetching patient details", e);
+                request.setAttribute("errorMessage", "Unable to fetch patient details. Please try again later.");
+                response.sendRedirect(request.getContextPath() + "/doctor?action=patients");
+            }
         } else if (action.equals("rooms")) {
             // Placeholder for rooms page (to be implemented)
             LOGGER.info("Rooms action requested (not implemented yet)");
             request.setAttribute("errorMessage", "Rooms page not implemented yet.");
             request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
+        } else if (action.equals("salary")) {
+            try {
+                // Fetch paysheets for the logged-in doctor
+                LOGGER.info("Fetching salary details for doctor: " + loggedInDoctor.getId());
+                var paysheets = doctorService.getPaysheetsForDoctor(loggedInDoctor.getId());
+                request.setAttribute("paysheets", paysheets);
+                request.getRequestDispatcher("/doctor/Salary.jsp").forward(request, response);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error fetching salary details", e);
+                request.setAttribute("errorMessage", "Unable to fetch salary details. Please try again later.");
+                request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
+            }
         } else if (action.equals("logout")) {
             // Invalidate session and redirect to login
             LOGGER.info("Doctor logging out: " + loggedInDoctor.getEmail());
@@ -171,6 +216,61 @@ public class DoctorServlet extends HttpServlet {
                     LOGGER.log(Level.SEVERE, "Error fetching appointments after delete", e);
                     request.setAttribute("errorMessage", "Unable to fetch appointments. Please try again later.");
                     request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
+                }
+            } else if (action.equals("addNote")) {
+                try {
+                    String patientId = request.getParameter("patientId");
+                    String noteText = request.getParameter("noteText");
+                    if (noteText == null || noteText.trim().isEmpty()) {
+                        request.setAttribute("errorMessage", "Note cannot be empty.");
+                    } else {
+                        boolean added = doctorService.addPatientNote(patientId, loggedInDoctor.getId(), noteText);
+                        if (added) {
+                            request.setAttribute("successMessage", "Note added successfully.");
+                        } else {
+                            request.setAttribute("errorMessage", "Failed to add note.");
+                        }
+                    }
+                    // Refresh patient details
+                    Patient patient = doctorService.getPatientById(patientId);
+                    var notes = doctorService.getPatientNotes(patientId, loggedInDoctor.getId());
+                    request.setAttribute("patient", patient);
+                    request.setAttribute("notes", notes);
+                    request.getRequestDispatcher("/doctor/PatientDetails.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error adding note", e);
+                    request.setAttribute("errorMessage", "Error adding note. Please try again.");
+                    response.sendRedirect(request.getContextPath() + "/doctor?action=patients");
+                }
+            } else if (action.equals("updateNote")) {
+                try {
+                    int noteId = Integer.parseInt(request.getParameter("noteId"));
+                    String patientId = request.getParameter("patientId");
+                    String noteText = request.getParameter("noteText");
+                    if (noteText == null || noteText.trim().isEmpty()) {
+                        request.setAttribute("errorMessage", "Note cannot be empty.");
+                    } else {
+                        boolean updated = doctorService.updatePatientNote(noteId, noteText);
+                        if (updated) {
+                            request.setAttribute("successMessage", "Note updated successfully.");
+                        } else {
+                            request.setAttribute("errorMessage", "Failed to update note.");
+                        }
+                    }
+                    // Refresh patient details
+                    Patient patient = doctorService.getPatientById(patientId);
+                    var notes = doctorService.getPatientNotes(patientId, loggedInDoctor.getId());
+                    request.setAttribute("patient", patient);
+                    request.setAttribute("notes", notes);
+                    request.getRequestDispatcher("/doctor/PatientDetails.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error updating note", e);
+                    request.setAttribute("errorMessage", "Error updating note. Please try again.");
+                    response.sendRedirect(request.getContextPath() + "/doctor?action=patients");
+                } catch (NumberFormatException e) {
+                    LOGGER.log(Level.WARNING, "Invalid note ID format", e);
+                    request.setAttribute("errorMessage", "Invalid note ID.");
+                    response.sendRedirect(request.getContextPath() + "/doctor?action=patients");
                 }
             } else {
                 // Unknown or no action, redirect to dashboard
