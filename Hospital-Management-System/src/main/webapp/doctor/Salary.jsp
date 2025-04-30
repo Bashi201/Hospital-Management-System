@@ -74,6 +74,10 @@
         .paysheet-table tr:nth-child(even) {
             background-color: #f9fafb;
         }
+        .main-content {
+            background:  
+                        url('${pageContext.request.contextPath}/doctor/assets/DoctorBGWithoutLogo.png') no-repeat center center/cover;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-purple-50 font-sans">

@@ -12,6 +12,11 @@
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #4c1d95, #7c3aed);
+            position: fixed; /* Make header fixed */
+            top: 0;
+            left: 256px; /* Offset to start after the sidebar */
+            right: 0;
+            z-index: 900; /* Ensure it stays above other content */
         }
 
         /* Sidebar Hover Effect */
@@ -55,7 +60,7 @@
 
         /* Background Overlay for Readability */
         .main-content {
-            background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
+            background:  
                         url('${pageContext.request.contextPath}/doctor/assets/DoctorBG.png') no-repeat center center/cover;
         }
     </style>
@@ -116,31 +121,31 @@
             </header>
 
             <!-- Main Dashboard Tiles -->
-            <div class="container mx-auto p-8 flex-1">
-                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Doctor Dashboard</h1>
+            <div class="container mx-auto p-8 pt-20 flex-1">
+                <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Doctor Dashboard</h1>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                     <!-- Appointments Tile -->
                     <a href="${pageContext.request.contextPath}/doctor?action=appointments" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-calendar-alt text-5xl text-purple-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Appointments</h2>
-                        <p class="text-gray-500 mt-2 text-center">View your schedule</p>
+                       class="dashboard-card bg-gradient-to-br from-purple-600 to-purple-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-calendar-alt text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">Appointments</h2>
+                        <p class="text-gray-100 mt-2 text-center">View your schedule</p>
                     </a>
 
                     <!-- Patients Tile -->
                     <a href="${pageContext.request.contextPath}/doctor?action=patients" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-users text-5xl text-purple-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Patients</h2>
-                        <p class="text-gray-500 mt-2 text-center">Manage patient records</p>
+                       class="dashboard-card bg-gradient-to-br from-purple-600 to-purple-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-users text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">Patients</h2>
+                        <p class="text-gray-100 mt-2 text-center">Manage patient records</p>
                     </a>
 
                     <!-- Salary Tile -->
                     <a href="${pageContext.request.contextPath}/doctor?action=salary" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-money-bill-wave text-5xl text-purple-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Salary</h2>
-                        <p class="text-gray-500 mt-2 text-center">View your payments</p>
+                       class="dashboard-card bg-gradient-to-br from-purple-600 to-purple-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-money-bill-wave text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">Salary</h2>
+                        <p class="text-gray-100 mt-2 text-center">View your payments</p>
                     </a>
                 </div>
             </div>

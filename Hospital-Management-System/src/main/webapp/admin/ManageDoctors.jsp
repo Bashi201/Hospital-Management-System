@@ -12,6 +12,11 @@
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            position: fixed; /* Make header fixed */
+            top: 0;
+            left: 256px; /* Offset to start after the sidebar */
+            right: 0;
+            z-index: 900; /* Ensure it stays above other content */
         }
 
         /* Sidebar Hover Effect */
@@ -125,26 +130,26 @@
             </header>
 
             <!-- Doctor Management Tiles -->
-            <div class="container mx-auto p-8 flex-1">
-                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Doctor Management</h1>
+            <div class="container mx-auto p-8 pt-20 flex-1">
+                <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Doctor Management</h1>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     <a href="${pageContext.request.contextPath}/admin?action=createDoctor" 
-                       class="doctor-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-user-plus text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Create Doctor</h2>
-                        <p class="text-gray-500 mt-2 text-center">Add a new doctor to the system</p>
+                       class="doctor-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-user-plus text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">Create Doctor</h2>
+                        <p class="text-gray-100 mt-2 text-center">Add a new doctor to the system</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=viewDoctors" 
-                       class="doctor-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-list text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">View Doctors</h2>
-                        <p class="text-gray-500 mt-2 text-center">Browse and search all doctors</p>
+                       class="doctor-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-list text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">View Doctors</h2>
+                        <p class="text-gray-100 mt-2 text-center">Browse and search all doctors</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=viewDoctors" 
-                       class="doctor-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-user-edit text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Update Doctor</h2>
-                        <p class="text-gray-500 mt-2 text-center">Update doctor profiles</p>
+                       class="doctor-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-user-edit text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">Update Doctor</h2>
+                        <p class="text-gray-100 mt-2 text-center">Update doctor profiles</p>
                     </a>
                 </div>
             </div>

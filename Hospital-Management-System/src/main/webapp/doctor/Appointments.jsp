@@ -9,6 +9,11 @@
     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .main-content {
+            background: url('${pageContext.request.contextPath}/doctor/assets/DoctorBGWithoutLogo.png') no-repeat center center/cover;
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-purple-50 font-sans">
     <div class="flex h-screen">
@@ -45,7 +50,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col main-content">
             <!-- Top Navbar -->
             <header class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 flex justify-between items-center shadow-lg">
                 <span id="datetime" class="text-lg font-medium"></span>

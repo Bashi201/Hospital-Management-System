@@ -11,12 +11,12 @@
     <style>
         /* Custom Gradient for Header */
         .header-gradient {
-             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
-            position: fixed; /* Make header fixed */
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            position: fixed;
             top: 0;
-            left: 256px; /* Offset to start after the sidebar */
+            left: 256px;
             right: 0;
-            z-index: 900; /* Ensure it stays above other content */
+            z-index: 900;
         }
 
         /* Sidebar Hover Effect */
@@ -130,20 +130,20 @@
             </header>
 
             <!-- Patient Management Tiles -->
-            <div class="container mx-auto p-8 flex-1">
-                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Patient Management</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div class="container mx-auto p-8 pt-20 flex-1">
+                <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Patient Management</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
                     <a href="${pageContext.request.contextPath}/admin?action=createPatient" 
-                       class="patient-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-user-plus text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Create Patient</h2>
-                        <p class="text-gray-500 mt-2 text-center">Add a new patient to the system</p>
+                       class="patient-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-user-plus text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">Create Patient</h2>
+                        <p class="text-gray-100 mt-2 text-center">Add a new patient to the system</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=viewPatients" 
-                       class="patient-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-list text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">View Patients</h2>
-                        <p class="text-gray-500 mt-2 text-center">Browse and search all patients</p>
+                       class="patient-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-list text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">View Patients</h2>
+                        <p class="text-gray-100 mt-2 text-center">Browse and search all patients</p>
                     </a>
                 </div>
             </div>

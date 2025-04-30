@@ -16,6 +16,10 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
+         .main-content {
+            background:  
+                        url('${pageContext.request.contextPath}/doctor/assets/DoctorBGWithoutLogo.png') no-repeat center center/cover;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-purple-50 font-sans">
@@ -53,7 +57,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col main-content">
             <!-- Top Navbar -->
             <header class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 flex justify-between items-center shadow-lg">
                 <span id="datetime" class="text-lg font-medium"></span>

@@ -18,8 +18,7 @@
             right: 0;
             z-index: 900; /* Ensure it stays above other content */
         }
-        	
-
+        
         /* Sidebar Hover Effect */
         .sidebar-link {
             transition: all 0.3s ease;
@@ -126,40 +125,40 @@
                 <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Admin Dashboard</h1>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     <a href="${pageContext.request.contextPath}/admin?action=patients" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-user-injured text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Patients</h2>
-                        <p class="text-gray-500 mt-2 text-center">Manage all patients</p>
+                       class="dashboard-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-user-injured text-5xl text-white mb-4"></i>
+                        <h2 class="text-xl font-semibold text-white">Patients</h2>
+                        <p class="text-gray-100 mt-2 text-center">Manage all patients</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=doctors" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-user-md text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Doctors</h2>
-                        <p class="text-gray-500 mt-2 text-center">Manage doctors</p>
+                       class="dashboard-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-user-md text-5xl text-white mb-4"></i>
+                        <h2 class="text-xl font-semibold text-white">Doctors</h2>
+                        <p class="text-gray-100 mt-2 text-center">Manage doctors</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=rooms" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-bed text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Rooms</h2>
-                        <p class="text-gray-500 mt-2 text-center">Room availability</p>
+                       class="dashboard-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-bed text-5xl text-white mb-4"></i>
+                        <h2 class="text-xl font-semibold text-white">Rooms</h2>
+                        <p class="text-gray-100 mt-2 text-center">Room availability</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=nurses" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-user-nurse text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Nurses</h2>
-                        <p class="text-gray-500 mt-2 text-center">Manage nursing staff</p>
+                       class="dashboard-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-user-nurse text-5xl text-white mb-4"></i>
+                        <h2 class="text-xl font-semibold text-white">Nurses</h2>
+                        <p class="text-gray-100 mt-2 text-center">Manage nursing staff</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=ambulance" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-ambulance text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Ambulance</h2>
-                        <p class="text-gray-500 mt-2 text-center">Manage services</p>
+                       class="dashboard-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-ambulance text-5xl text-white mb-4"></i>
+                        <h2 class="text-xl font-semibold text-white">Ambulance</h2>
+                        <p class="text-gray-100 mt-2 text-center">Manage services</p>
                     </a>
                     <a href="${pageContext.request.contextPath}/admin?action=salary" 
-                       class="dashboard-card bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-money-bill-wave text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Salary</h2>
-                        <p class="text-gray-500 mt-2 text-center">Salary reports & payouts</p>
+                       class="dashboard-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
+                        <i class="fas fa-money-bill-wave text-5xl text-white mb-4"></i>
+                        <h2 class="text-xl font-semibold text-white">Salary</h2>
+                        <p class="text-gray-100 mt-2 text-center">Salary reports & payouts</p>
                     </a>
                 </div>
             </div>
