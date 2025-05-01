@@ -6,13 +6,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ambulance Services</title>
-     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #134e4a, #2dd4bf);
+            position: fixed; /* Make header fixed */
+            top: 0;
+            left: 256px; /* Offset to start after the sidebar */
+            right: 0;
+            z-index: 900; /* Ensure it stays above other content */
         }
 
         /* Sidebar Hover Effect */
@@ -27,11 +32,12 @@
         /* Tile Hover Effect */
         .dashboard-tile {
             transition: all 0.3s ease;
+            border: 1px solid #ccfbf1; /* Subtle teal border */
         }
         .dashboard-tile:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+            background: linear-gradient(135deg, #e6fffa, #b5f5ec);
         }
 
         /* Profile Image Animation */
@@ -74,7 +80,7 @@
     <div class="flex h-full">
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 text-white fixed top-0 left-0 h-screen flex flex-col flex-shrink-0 sidebar">
-            <div class="p-6 text-xl font-bold border-b border-gray-800 flex items-center space-x- regul3">
+            <div class="p-6 text-xl font-bold border-b border-gray-800 flex items-center space-x-3">
                 <i class="fas fa-hospital text-teal-400"></i>
                 <span>Patient Portal</span>
             </div>
@@ -126,22 +132,23 @@
             </header>
 
             <!-- Main Content with Tiles -->
-            <div class="container mx-auto p-8 flex-1 flex items-center justify-center">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+            <div class="container mx-auto p-8 pt-20 flex-1">
+                <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Ambulance Services</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl mx-auto">
                     <!-- Book an Ambulance Tile -->
                     <a href="${pageContext.request.contextPath}/patient?action=bookAmbulanceForm" 
-                       class="dashboard-tile bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-ambulance text-5xl text-teal-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Book an Ambulance</h2>
-                        <p class="text-gray-600 text-sm mt-2">Request a new ambulance service</p>
+                       class="dashboard-tile bg-gradient-to-br from-teal-600 to-teal-400 p-10 rounded-xl shadow-md flex flex-col items-center justify-center h-72 border border-teal-200">
+                        <i class="fas fa-ambulance text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-bold text-white">Book an Ambulance</h2>
+                        <p class="text-gray-100 text-sm mt-2">Request a new ambulance service</p>
                     </a>
 
                     <!-- View Booked Ambulances Tile -->
                     <a href="${pageContext.request.contextPath}/patient?action=viewBookedAmbulances" 
-                       class="dashboard-tile bg-white p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-64">
-                        <i class="fas fa-list-alt text-5xl text-teal-500 mb-4"></i>
-                        <h2 class="text-xl font-semibold text-gray-800">Booked Ambulances</h2>
-                        <p class="text-gray-600 text-sm mt-2">View your ambulance bookings</p>
+                       class="dashboard-tile bg-gradient-to-br from-teal-600 to-teal-400 p-10 rounded-xl shadow-md flex flex-col items-center justify-center h-72 border border-teal-200">
+                        <i class="fas fa-list-alt text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-bold text-white">Booked Ambulances</h2>
+                        <p class="text-gray-100 text-sm mt-2">View your ambulance bookings</p>
                     </a>
                 </div>
             </div>
@@ -156,7 +163,7 @@
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric',
-                 hour: '2-digit',
+                hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit'
             };

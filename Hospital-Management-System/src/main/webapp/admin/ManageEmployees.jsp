@@ -149,7 +149,7 @@
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-800">Employee List</h2>
                     </div>
-                    <c:if test="${not empty admins or not empty doctors or not empty nurses}">
+                    <c:if test="${not empty admins or not empty doctors or not empty nurses or not empty drivers}">
                         <div class="overflow-x-auto">
                             <table class="w-full table-auto border-collapse">
                                 <thead>
@@ -192,11 +192,21 @@
                                             <td class="p-3 text-gray-700">${nurse.phone}</td>
                                         </tr>
                                     </c:forEach>
+                                    <!-- Drivers -->
+                                    <c:forEach var="driver" items="${drivers}">
+                                        <tr class="table-row border-b border-gray-200 bg-white">
+                                            <td class="p-3 text-gray-700">${driver.driverId}</td>
+                                            <td class="p-3 text-gray-700">${driver.name}</td>
+                                            <td class="p-3 text-gray-700">Driver</td>
+                                            <td class="p-3 text-gray-700">-</td>
+                                            <td class="p-3 text-gray-700">-</td>
+                                        </tr>
+                                    </c:forEach>
                                 </tbody>
                             </table>
                         </div>
                     </c:if>
-                    <c:if test="${empty admins and empty doctors and empty nurses}">
+                    <c:if test="${empty admins and empty doctors and empty nurses and empty drivers}">
                         <p class="text-gray-500 text-center py-6">No employees found.</p>
                     </c:if>
                     <div class="mt-6 flex justify-end">

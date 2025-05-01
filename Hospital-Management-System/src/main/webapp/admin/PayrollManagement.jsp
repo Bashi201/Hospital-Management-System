@@ -373,6 +373,40 @@
                                             </td>
                                         </tr>
                                     </c:forEach>
+                                    <!-- Drivers -->
+                                    <c:forEach var="driver" items="${drivers}">
+                                        <tr class="payroll-row">
+                                            <td>
+                                                <input type="text" name="employeeIds" class="id" value="${driver.driverId}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="employeeNames" class="name" value="${driver.name}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="positions" value="Driver" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="grossSalaries" class="gross-salary" placeholder="Gross Salary" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="deductions" class="deductions" placeholder="Deductions" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="overtimes" class="overtime" placeholder="Overtime" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="bonuses" class="bonus" placeholder="Bonus" step="0.01">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="netPays" class="net-pay" placeholder="Net Pay" step="0.01" readonly>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="text-blue-500 hover:text-blue-700 remove-row">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
                                     <!-- Total Row -->
                                     <tr class="total-row">
                                         <td colspan="3" class="text-center">Total</td>

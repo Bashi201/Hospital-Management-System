@@ -6,13 +6,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Profiles</title>
-     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #134e4a, #2dd4bf);
+            position: fixed; /* Make header fixed */
+            top: 0;
+            left: 256px; /* Offset to start after the sidebar */
+            right: 0;
+            z-index: 900; /* Ensure it stays above other content */
         }
 
         /* Sidebar Hover Effect */
@@ -27,11 +32,12 @@
         /* Card Hover Effect */
         .doctor-card {
             transition: all 0.3s ease;
+            border: 1px solid #ccfbf1; /* Subtle teal border */
         }
         .doctor-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+            background: linear-gradient(135deg, #e6fffa, #b5f5ec);
         }
 
         /* Profile Image Animation */
@@ -119,45 +125,47 @@
             </header>
 
             <!-- Doctor Profiles Content -->
-            <div class="container mx-auto p-8 flex-1">
-                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Doctor Profiles</h1>
+            <div class="container mx-auto p-8 pt-20 flex-1">
+                <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Doctor Profiles</h1>
                 <c:if test="${not empty errorMessage}">
-                    <div class="text-red-500 text-center mb-6 font-medium bg-red-50 p-3 rounded-md">${errorMessage}</div>
+                    <div class="text-red-500 text-center mb-6 font-medium bg-gradient-to-r from-red-50 to-red-100 p-3 rounded-lg">${errorMessage}</div>
                 </c:if>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     <c:forEach var="doctor" items="${doctors}">
-                        <div class="doctor-card bg-white p-6 rounded-xl shadow-md">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-teal-300">
+                        <div class="doctor-card bg-gradient-to-br from-teal-50 to-teal-100 p-8 rounded-xl shadow-md border border-teal-200">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-24 h-24 rounded-full overflow-hidden ring-2 ring-teal-400">
                                     <img src="${doctor.picture != null ? doctor.picture : '${pageContext.request.contextPath}/patient/assets/default_doctor.jpg'}" 
                                          alt="Doctor Profile" class="w-full h-full object-cover">
                                 </div>
                                 <div>
-                                    <h2 class="text-xl font-semibold text-gray-800">${doctor.name}</h2>
-                                    <p class="text-base text-gray-600">${doctor.specialty}</p>
-                                    <p class="text-gray-500 text-sm">
-                                        <i class="fas fa-id-card mr-2 text-teal-500"></i> ID: ${doctor.id}
+                                    <h2 class="text-2xl font-bold text-gray-800">${doctor.name}</h2>
+                                    <p class="text-base text-gray-700">${doctor.specialty}</p>
+                                    <p class="text-gray-600 text-sm">
+                                        <i class="fas fa-id-card mr-2 text-teal-600"></i> ID: ${doctor.id}
                                     </p>
                                 </div>
                             </div>
-                            <div class="mt-4">
-                                <h3 class="text-base font-semibold text-gray-800">Qualifications</h3>
-                                <p class="text-gray-600 text-sm">${doctor.qualifications}</p>
-                            </div>
-                            <div class="mt-4">
-                                <h3 class="text-base font-semibold text-gray-800">Contact</h3>
-                                <p class="text-gray-600 text-sm">
-                                    <i class="fas fa-envelope mr-2 text-teal-500"></i> ${doctor.email}
-                                </p>
-                                <p class="text-gray-600 text-sm">
-                                    <i class="fas fa-phone mr-2 text-teal-500"></i> ${doctor.phone}
-                                </p>
-                            </div>
-                            <div class="mt-4">
-                                <a href="${pageContext.request.contextPath}/patient?action=channeling&doctorId=${doctor.id}" 
-                                   class="bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition-colors">
-                                    Book Appointment
-                                </a>
+                            <div class="space-y-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Qualifications</h3>
+                                    <p class="text-gray-700 text-sm">${doctor.qualifications}</p>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Contact</h3>
+                                    <p class="text-gray-700 text-sm">
+                                        <i class="fas fa-envelope mr-2 text-teal-600"></i> ${doctor.email}
+                                    </p>
+                                    <p class="text-gray-700 text-sm">
+                                        <i class="fas fa-phone mr-2 text-teal-600"></i> ${doctor.phone}
+                                    </p>
+                                </div>
+                                <div>
+                                    <a href="${pageContext.request.contextPath}/patient?action=channeling&doctorId=${doctor.id}" 
+                                       class="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-lg hover:from-teal-600 hover:to-teal-700 transition-colors text-base">
+                                        Book Appointment
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </c:forEach>

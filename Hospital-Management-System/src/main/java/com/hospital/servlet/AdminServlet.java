@@ -177,17 +177,21 @@ public class AdminServlet extends HttpServlet {
                 List<Admin> admins = adminService.getAllAdmins();
                 List<Doctor> doctors = doctorService.getAllDoctors();
                 List<Nurse> nurses = nurseService.getAllNurses();
+                List<Driver> drivers = driverService.getAllDrivers(); // Fetch all drivers
                 request.setAttribute("admins", admins);
                 request.setAttribute("doctors", doctors);
                 request.setAttribute("nurses", nurses);
+                request.setAttribute("drivers", drivers); // Pass drivers to JSP
                 request.getRequestDispatcher("/admin/PayrollManagement.jsp").forward(request, response);
             } else if (action.equals("manageEmployees")) {
                 List<Admin> admins = adminService.getAllAdmins();
                 List<Doctor> doctors = doctorService.getAllDoctors();
                 List<Nurse> nurses = nurseService.getAllNurses();
+                List<Driver> drivers = driverService.getAllDrivers(); // Fetch all drivers
                 request.setAttribute("admins", admins);
                 request.setAttribute("doctors", doctors);
                 request.setAttribute("nurses", nurses);
+                request.setAttribute("drivers", drivers); // Pass drivers to JSP
                 request.getRequestDispatcher("/admin/ManageEmployees.jsp").forward(request, response);
             } else if (action.equals("manageDeductions")) {
                 List<Paysheet> paysheets = getAllPaysheets();

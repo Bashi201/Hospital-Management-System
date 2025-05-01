@@ -6,13 +6,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book an Appointment</title>
-     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #134e4a, #2dd4bf);
+            position: fixed; /* Make header fixed */
+            top: 0;
+            left: 256px; /* Offset to start after the sidebar */
+            right: 0;
+            z-index: 900; /* Ensure it stays above other content */
         }
 
         /* Sidebar Hover Effect */
@@ -27,10 +32,11 @@
         /* Form Container Hover Effect */
         .form-container {
             transition: all 0.3s ease;
+            border: 1px solid #ccfbf1; /* Subtle teal border */
         }
         .form-container:hover {
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+            background: linear-gradient(135deg, #e6fffa, #b5f5ec);
         }
 
         /* Profile Image Animation */
@@ -55,8 +61,7 @@
 
         /* Background Overlay for Readability */
         .main-content {
-            background:  
-                        url('${pageContext.request.contextPath}/patient/assets/PatientChannelingFormBG.png') no-repeat center center/cover;
+            background: url('${pageContext.request.contextPath}/patient/assets/PatientChannelingFormBG.png') no-repeat center center/cover;
         }
     </style>
 </head>
@@ -118,26 +123,25 @@
             </header>
 
             <!-- Channeling Form -->
-            <div class="container mx-auto p-8 flex-1 flex items-center justify-center">
-                <div class="form-container bg-white p-8 rounded-xl shadow-md max-w-2xl w-full">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Book an Appointment</h2>
-
+            <div class="container mx-auto p-8 pt-20 flex-1">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Book an Appointment</h1>
+                <div class="form-container bg-gradient-to-br from-teal-50 to-teal-100 p-10 rounded-xl shadow-md max-w-3xl w-full mx-auto border border-teal-200">
                     <c:if test="${not empty errorMessage}">
-                        <div class="text-red-500 text-center mb-6 font-medium bg-red-50 p-3 rounded-md">${errorMessage}</div>
+                        <div class="text-red-500 text-center mb-6 font-medium bg-gradient-to-r from-red-50 to-red-100 p-3 rounded-lg">${errorMessage}</div>
                     </c:if>
                     <c:if test="${not empty successMessage}">
-                        <div class="text-green-500 text-center mb-6 font-medium bg-green-50 p-3 rounded-md">${successMessage}</div>
+                        <div class="text-green-500 text-center mb-6 font-medium bg-gradient-to-r from-green-50 to-green-100 p-3 rounded-lg">${successMessage}</div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/patient" method="post" class="space-y-6">
+                    <form action="${pageContext.request.contextPath}/patient" method="post" class="space-y-8">
                         <input type="hidden" name="action" value="bookChanneling">
 
                         <!-- Doctor Selection -->
                         <div class="flex items-center space-x-4">
-                            <label for="doctor" class="w-1/3 text-gray-700 font-medium">
-                                <i class="fas fa-user-md mr-2 text-teal-500"></i> Doctor
+                            <label for="doctor" class="w-1/3 text-gray-700 font-semibold text-base">
+                                <i class="fas fa-user-md mr-2 text-teal-600"></i> Doctor
                             </label>
-                            <select id="doctor" name="doctor" class="w-2/3 p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                            <select id="doctor" name="doctor" class="w-2/3 p-4 border border-gray-300 rounded-lg bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-600" required>
                                 <option value="" <c:if test="${selectedDoctorId == null}">selected</c:if> disabled>Select a Doctor</option>
                                 <c:forEach var="doctor" items="${doctors}">
                                     <option value="${doctor.id}" <c:if test="${doctor.id == selectedDoctorId}">selected</c:if>>
@@ -149,22 +153,22 @@
 
                         <!-- Date Selection -->
                         <div class="flex items-center space-x-4">
-                            <label for="appointmentDate" class="w-1/3 text-gray-700 font-medium">
-                                <i class="fas fa-calendar-alt mr-2 text-teal-500"></i> Date
+                            <label for="appointmentDate" class="w-1/3 text-gray-700 font-semibold text-base">
+                                <i class="fas fa-calendar-alt mr-2 text-teal-600"></i> Date
                             </label>
                             <input type="date" id="appointmentDate" name="appointmentDate" 
-                                   class="w-2/3 p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                                   class="w-2/3 p-4 border border-gray-300 rounded-lg bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-600" 
                                    min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" 
-                                   required>
+                                   placeholder="Select a date" required>
                         </div>
 
                         <!-- Time Selection -->
                         <div class="flex items-center space-x-4">
-                            <label for="appointmentTime" class="w-1/3 text-gray-700 font-medium">
-                                <i class="fas fa-clock mr-2 text-teal-500"></i> Time
+                            <label for="appointmentTime" class="w-1/3 text-gray-700 font-semibold text-base">
+                                <i class="fas fa-clock mr-2 text-teal-600"></i> Time
                             </label>
                             <select id="appointmentTime" name="appointmentTime" 
-                                    class="w-2/3 p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                                    class="w-2/3 p-4 border border-gray-300 rounded-lg bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-600" required>
                                 <option value="" disabled selected>Select a Time</option>
                                 <option value="09:00">09:00 AM</option>
                                 <option value="11:00">11:00 AM</option>
@@ -175,7 +179,7 @@
 
                         <!-- Submit Button -->
                         <div class="text-center">
-                            <button type="submit" class="bg-teal-500 text-white px-6 py-3 rounded-md hover:bg-teal-600 transition-colors">
+                            <button type="submit" class="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-8 py-4 rounded-lg hover:from-teal-600 hover:to-teal-700 transition-colors text-lg">
                                 Book Appointment
                             </button>
                         </div>
