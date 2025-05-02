@@ -17,7 +17,7 @@ import java.util.logging.Level;
 
 /**
  * Servlet for handling doctor dashboard and related actions.
- * Maps to "/doctor" and manages dashboard, appointments, patients, rooms, salary, and logout.
+ * Maps to "/doctor" and manages dashboard, appointments, patients, rooms, salary, settings, meal orders, and logout.
  */
 @WebServlet("/doctor")
 public class DoctorServlet extends HttpServlet {
@@ -126,6 +126,22 @@ public class DoctorServlet extends HttpServlet {
                 request.setAttribute("errorMessage", "Unable to fetch salary details. Please try again later.");
                 request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
             }
+        } else if (action.equals("settings")) {
+            // Show settings page
+            LOGGER.info("Displaying settings page for doctor: " + loggedInDoctor.getEmail());
+            request.getRequestDispatcher("/doctor/Settings.jsp").forward(request, response);
+        } else if (action.equals("mealOrder")) {
+            java.util.List<DoctorService.MealOrder> mealOrders = new java.util.ArrayList<>();
+            try {
+                // Fetch meal orders for the logged-in doctor
+                LOGGER.info("Fetching meal orders for doctor: " + loggedInDoctor.getId());
+                mealOrders = doctorService.getMealOrdersForDoctor(loggedInDoctor.getId());
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error fetching meal orders", e);
+                request.setAttribute("errorMessage", "Unable to fetch meal orders. Please try again later.");
+            }
+            request.setAttribute("mealOrders", mealOrders);
+            request.getRequestDispatcher("/doctor/MealOrder.jsp").forward(request, response);
         } else if (action.equals("logout")) {
             // Invalidate session and redirect to login
             LOGGER.info("Doctor logging out: " + loggedInDoctor.getEmail());
@@ -139,7 +155,7 @@ public class DoctorServlet extends HttpServlet {
     }
 
     /**
-     * Handles POST requests (e.g., logout form submission, confirm/delete appointment).
+     * Handles POST requests (e.g., logout form submission, confirm/delete appointment, place meal order).
      * Requires a valid session; redirects to login if not authenticated.
      */
     @Override
@@ -271,6 +287,48 @@ public class DoctorServlet extends HttpServlet {
                     LOGGER.log(Level.WARNING, "Invalid note ID format", e);
                     request.setAttribute("errorMessage", "Invalid note ID.");
                     response.sendRedirect(request.getContextPath() + "/doctor?action=patients");
+                }
+            } else if (action.equals("placeMealOrder")) {
+                try {
+                    // Process meal order
+                    int chickenSalad = Integer.parseInt(request.getParameter("chickenSalad") != null ? request.getParameter("chickenSalad") : "0");
+                    int vegPasta = Integer.parseInt(request.getParameter("vegPasta") != null ? request.getParameter("vegPasta") : "0");
+                    int beefStirFry = Integer.parseInt(request.getParameter("beefStirFry") != null ? request.getParameter("beefStirFry") : "0");
+
+                    if (chickenSalad == 0 && vegPasta == 0 && beefStirFry == 0) {
+                        request.setAttribute("errorMessage", "Please select at least one meal item.");
+                    } else {
+                        // Calculate total cost and build items string
+                        double totalCost = (chickenSalad * 10.00) + (vegPasta * 8.50) + (beefStirFry * 12.00);
+                        StringBuilder items = new StringBuilder();
+                        if (chickenSalad > 0) items.append("Grilled Chicken Salad x").append(chickenSalad).append(", ");
+                        if (vegPasta > 0) items.append("Vegetarian Pasta x").append(vegPasta).append(", ");
+                        if (beefStirFry > 0) items.append("Beef Stir-Fry x").append(beefStirFry).append(", ");
+                        if (items.length() > 0) items.setLength(items.length() - 2); // Remove trailing comma and space
+
+                        boolean ordered = doctorService.placeMealOrder(loggedInDoctor.getId(), items.toString(), totalCost);
+                        if (ordered) {
+                            request.setAttribute("successMessage", "Meal order placed successfully.");
+                        } else {
+                            request.setAttribute("errorMessage", "Failed to place meal order.");
+                        }
+                    }
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error placing meal order", e);
+                    request.setAttribute("errorMessage", "Error placing meal order. Please try again.");
+                } catch (NumberFormatException e) {
+                    LOGGER.log(Level.WARNING, "Invalid quantity format", e);
+                    request.setAttribute("errorMessage", "Invalid quantity specified.");
+                }
+                // Refresh meal orders
+                try {
+                    var mealOrders = doctorService.getMealOrdersForDoctor(loggedInDoctor.getId());
+                    request.setAttribute("mealOrders", mealOrders);
+                    request.getRequestDispatcher("/doctor/MealOrder.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error fetching meal orders after placing order", e);
+                    request.setAttribute("errorMessage", "Unable to fetch meal orders. Please try again later.");
+                    request.getRequestDispatcher("/doctor/DoctorDashHome.jsp").forward(request, response);
                 }
             } else {
                 // Unknown or no action, redirect to dashboard

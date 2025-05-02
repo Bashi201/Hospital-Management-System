@@ -368,6 +368,43 @@ public class DoctorService {
         return paysheets;
     }
 
+    // Place a meal order for a doctor
+    public boolean placeMealOrder(String doctorId, String items, double totalCost) throws SQLException {
+        Connection conn = DBConnection.getConnection();
+        String sql = "INSERT INTO meal_orders (doctor_id, items, total_cost) VALUES (?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, doctorId);
+        stmt.setString(2, items);
+        stmt.setDouble(3, totalCost);
+        int rowsAffected = stmt.executeUpdate();
+        stmt.close();
+        conn.close();
+        return rowsAffected > 0;
+    }
+
+    // Fetch meal orders for a specific doctor
+    public List<MealOrder> getMealOrdersForDoctor(String doctorId) throws SQLException {
+        List<MealOrder> mealOrders = new ArrayList<>();
+        Connection conn = DBConnection.getConnection();
+        String sql = "SELECT * FROM meal_orders WHERE doctor_id = ? ORDER BY created_at DESC";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, doctorId);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            MealOrder order = new MealOrder();
+            order.setId(rs.getInt("id"));
+            order.setDoctorId(rs.getString("doctor_id"));
+            order.setItems(rs.getString("items"));
+            order.setTotalCost(rs.getDouble("total_cost"));
+            order.setCreatedAt(rs.getString("created_at"));
+            mealOrders.add(order);
+        }
+        rs.close();
+        stmt.close();
+        conn.close();
+        return mealOrders;
+    }
+
     // Inner class to represent an appointment
     public static class Appointment {
         private int id;
@@ -414,7 +451,7 @@ public class DoctorService {
         public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
     }
 
-    // Inner class to represent a paysheet (copied from AdminServlet for consistency)
+    // Inner class to represent a paysheet
     public static class Paysheet {
         private int paysheetId;
         private String employeeId;
@@ -451,6 +488,26 @@ public class DoctorService {
         public void setBonus(double bonus) { this.bonus = bonus; }
         public double getNetPay() { return netPay; }
         public void setNetPay(double netPay) { this.netPay = netPay; }
+        public String getCreatedAt() { return createdAt; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    }
+
+    // Inner class to represent a meal order
+    public static class MealOrder {
+        private int id;
+        private String doctorId;
+        private String items;
+        private double totalCost;
+        private String createdAt;
+
+        public int getId() { return id; }
+        public void setId(int id) { this.id = id; }
+        public String getDoctorId() { return doctorId; }
+        public void setDoctorId(String doctorId) { this.doctorId = doctorId; }
+        public String getItems() { return items; }
+        public void setItems(String items) { this.items = items; }
+        public double getTotalCost() { return totalCost; }
+        public void setTotalCost(double totalCost) { this.totalCost = totalCost; }
         public String getCreatedAt() { return createdAt; }
         public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     }

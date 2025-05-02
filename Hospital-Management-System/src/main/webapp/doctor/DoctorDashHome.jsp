@@ -60,8 +60,7 @@
 
         /* Background Overlay for Readability */
         .main-content {
-            background:  
-                        url('${pageContext.request.contextPath}/doctor/assets/DoctorBG.png') no-repeat center center/cover;
+            background: url('${pageContext.request.contextPath}/doctor/assets/DoctorBG.png') no-repeat center center/cover;
         }
     </style>
 </head>
@@ -90,9 +89,14 @@
                             <i class="fas fa-users mr-3 text-purple-400"></i> Patients
                         </a>
                     </li>
-                    <li>
+                    <li class="mb-3">
                         <a href="${pageContext.request.contextPath}/doctor?action=salary" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
                             <i class="fas fa-money-bill-wave mr-3 text-purple-400"></i> Salary
+                        </a>
+                    </li>
+                    <li>
+                        <a href="${pageContext.request.contextPath}/doctor?action=settings" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-cog mr-3 text-purple-400"></i> Settings
                         </a>
                     </li>
                 </ul>
@@ -108,7 +112,7 @@
                     <div class="relative group">
                         <img src="doctor_dp.jpeg" alt="Doctor Profile" class="w-10 h-10 rounded-full border-2 border-purple-200 shadow-sm cursor-pointer object-cover profile-img">
                         <div class="absolute left-1/2 transform -translate-x-1/2 -top-48 hidden group-hover:flex 
-                                    w-40 h-40 border-2 border-purple-300 rounded-full overflow-hidden shadow-xl bg-white p-1 z-50">
+                                    w-40 h-40 border-2DNA border-purple-300 rounded-full overflow-hidden shadow-xl bg-white p-1 z-50">
                             <img src="doctor_dp.jpeg" alt="Doctor Profile Enlarged" class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>
@@ -123,7 +127,7 @@
             <!-- Main Dashboard Tiles -->
             <div class="container mx-auto p-8 pt-20 flex-1">
                 <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Doctor Dashboard</h1>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
                     <!-- Appointments Tile -->
                     <a href="${pageContext.request.contextPath}/doctor?action=appointments" 
                        class="dashboard-card bg-gradient-to-br from-purple-600 to-purple-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
@@ -146,6 +150,14 @@
                         <i class="fas fa-money-bill-wave text-6xl text-white mb-4"></i>
                         <h2 class="text-2xl font-semibold text-white">Salary</h2>
                         <p class="text-gray-100 mt-2 text-center">View your payments</p>
+                    </a>
+
+                    <!-- Meal Order Tile -->
+                    <a href="${pageContext.request.contextPath}/doctor?action=mealOrder" 
+                       class="dashboard-card bg-gradient-to-br from-purple-600 to-purple-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-utensils text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">Meal Order</h2>
+                        <p class="text-gray-100 mt-2 text-center">Order your meals</p>
                     </a>
                 </div>
             </div>
