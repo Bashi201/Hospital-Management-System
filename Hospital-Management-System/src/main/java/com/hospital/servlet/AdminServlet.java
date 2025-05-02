@@ -177,21 +177,21 @@ public class AdminServlet extends HttpServlet {
                 List<Admin> admins = adminService.getAllAdmins();
                 List<Doctor> doctors = doctorService.getAllDoctors();
                 List<Nurse> nurses = nurseService.getAllNurses();
-                List<Driver> drivers = driverService.getAllDrivers(); // Fetch all drivers
+                List<Driver> drivers = driverService.getAllDrivers();
                 request.setAttribute("admins", admins);
                 request.setAttribute("doctors", doctors);
                 request.setAttribute("nurses", nurses);
-                request.setAttribute("drivers", drivers); // Pass drivers to JSP
+                request.setAttribute("drivers", drivers);
                 request.getRequestDispatcher("/admin/PayrollManagement.jsp").forward(request, response);
             } else if (action.equals("manageEmployees")) {
                 List<Admin> admins = adminService.getAllAdmins();
                 List<Doctor> doctors = doctorService.getAllDoctors();
                 List<Nurse> nurses = nurseService.getAllNurses();
-                List<Driver> drivers = driverService.getAllDrivers(); // Fetch all drivers
+                List<Driver> drivers = driverService.getAllDrivers();
                 request.setAttribute("admins", admins);
                 request.setAttribute("doctors", doctors);
                 request.setAttribute("nurses", nurses);
-                request.setAttribute("drivers", drivers); // Pass drivers to JSP
+                request.setAttribute("drivers", drivers);
                 request.getRequestDispatcher("/admin/ManageEmployees.jsp").forward(request, response);
             } else if (action.equals("manageDeductions")) {
                 List<Paysheet> paysheets = getAllPaysheets();
@@ -203,8 +203,11 @@ public class AdminServlet extends HttpServlet {
                 System.out.println("Fetched " + paysheets.size() + " paysheets");
                 request.setAttribute("paysheets", paysheets);
                 request.getRequestDispatcher("/admin/ViewPaysheets.jsp").forward(request, response);
+            } else if (action.equals("viewMealOrders")) {
+                List<DoctorService.MealOrder> mealOrders = getAllMealOrders();
+                request.setAttribute("mealOrders", mealOrders);
+                request.getRequestDispatcher("/admin/ViewMealOrders.jsp").forward(request, response);
             } else if (action.equals("ambulance")) {
-                // Fetch available ambulances
                 List<String> availableAmbulanceVehicleNumbers = new ArrayList<>();
                 int availableAmbulancesCount = 0;
                 String ambulanceSql = "SELECT vehicle_number FROM ambulances WHERE availability = 'Available'";
@@ -217,13 +220,10 @@ public class AdminServlet extends HttpServlet {
                     }
                 }
 
-                // Fetch latest ambulance request
                 Ambulance latestAmbulanceRequest = patientService.getLatestPendingAmbulanceRequest();
 
-                // Fetch available drivers
                 List<Driver> driversAtHospital = driverService.getAvailableDrivers();
 
-                // Fetch unavailable ambulances
                 List<String> unavailableAmbulances = new ArrayList<>();
                 String unavailableSql = "SELECT vehicle_number FROM ambulances WHERE availability = 'Booked'";
                 try (Connection conn = DBConnection.getConnection();
@@ -234,7 +234,6 @@ public class AdminServlet extends HttpServlet {
                     }
                 }
 
-                // Fetch ambulance history
                 List<PatientService.AmbulanceHistory> ambulanceHistory = patientService.getAmbulanceHistory();
 
                 request.setAttribute("availableAmbulances", availableAmbulancesCount);
@@ -523,9 +522,7 @@ public class AdminServlet extends HttpServlet {
                 Connection conn = DBConnection.getConnection();
                 conn.setAutoCommit(false);
                 try {
-                    // Dispatch ambulance
                     if (patientService.dispatchAmbulance(bookingId, driverId, vehicleNumber)) {
-                        // Update driver availability
                         driverService.updateDriverAvailability(driverId, "Dispatched");
                         conn.commit();
                     } else {
@@ -546,27 +543,23 @@ public class AdminServlet extends HttpServlet {
                 Connection conn = DBConnection.getConnection();
                 conn.setAutoCommit(false);
                 try {
-                    // Update ambulance availability
                     String updateAmbulanceSql = "UPDATE ambulances SET availability = 'Available' WHERE vehicle_number = ?";
                     PreparedStatement stmt = conn.prepareStatement(updateAmbulanceSql);
                     stmt.setString(1, vehicleNumber);
                     stmt.executeUpdate();
                     stmt.close();
 
-                    // Fetch driver from history
                     String fetchDriverSql = "SELECT driver_id FROM ambulance_history WHERE vehicle_number = ? AND return_time IS NULL ORDER BY dispatch_time DESC LIMIT 1";
                     stmt = conn.prepareStatement(fetchDriverSql);
                     stmt.setString(1, vehicleNumber);
                     ResultSet rs = stmt.executeQuery();
                     if (rs.next()) {
                         String driverId = rs.getString("driver_id");
-                        // Update driver availability
                         driverService.updateDriverAvailability(driverId, "Available");
                     }
                     rs.close();
                     stmt.close();
 
-                    // Update return time in history
                     String updateHistorySql = "UPDATE ambulance_history SET return_time = NOW() WHERE vehicle_number = ? AND return_time IS NULL";
                     stmt = conn.prepareStatement(updateHistorySql);
                     stmt.setString(1, vehicleNumber);
@@ -623,7 +616,6 @@ public class AdminServlet extends HttpServlet {
         return filteredDoctors;
     }
 
-    // Model class for Paysheet
     public static class Paysheet {
         private int paysheetId;
         private String employeeId;
@@ -664,7 +656,6 @@ public class AdminServlet extends HttpServlet {
         public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     }
 
-    // Fetch all paysheets
     private List<Paysheet> getAllPaysheets() throws SQLException {
         List<Paysheet> paysheets = new ArrayList<>();
         Connection conn = DBConnection.getConnection();
@@ -698,5 +689,26 @@ public class AdminServlet extends HttpServlet {
         stmt.close();
         conn.close();
         return paysheets;
+    }
+
+    private List<DoctorService.MealOrder> getAllMealOrders() throws SQLException {
+        List<DoctorService.MealOrder> mealOrders = new ArrayList<>();
+        Connection conn = DBConnection.getConnection();
+        String sql = "SELECT * FROM meal_orders ORDER BY created_at DESC";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            DoctorService.MealOrder order = new DoctorService.MealOrder();
+            order.setId(rs.getInt("id"));
+            order.setDoctorId(rs.getString("doctor_id"));
+            order.setItems(rs.getString("items"));
+            order.setTotalCost(rs.getDouble("total_cost"));
+            order.setCreatedAt(rs.getString("created_at"));
+            mealOrders.add(order);
+        }
+        rs.close();
+        stmt.close();
+        conn.close();
+        return mealOrders;
     }
 }
