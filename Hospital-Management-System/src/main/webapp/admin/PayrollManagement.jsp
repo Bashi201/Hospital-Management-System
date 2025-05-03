@@ -12,7 +12,7 @@
     <style>
         /* Custom Gradient for Header */
         .header-gradient {
-             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
             position: fixed; /* Make header fixed */
             top: 0;
             left: 256px; /* Offset to start after the sidebar */
@@ -133,12 +133,30 @@
             ring: 2px;
             ring-blue-500;
         }
+
+        /* Ensure Sidebar is Fixed and Extends to Bottom */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh; /* Full viewport height */
+            width: 256px; /* Match the left offset of header */
+            z-index: 1000; /* Ensure it stays above other elements */
+            overflow-y: auto; /* Allow scrolling if content overflows */
+        }
+
+        /* Adjust Main Content to Account for Fixed Sidebar */
+        .main-content {
+            margin-left: 256px; /* Match sidebar width */
+            height: 100vh; /* Ensure it takes full height */
+            overflow-y: auto; /* Allow scrolling if content overflows */
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-blue-50 font-sans">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-900 text-white flex flex-col min-h-screen sidebar overflow-y-auto">
+        <aside class="w-64 bg-gray-900 text-white flex flex-col sidebar overflow-y-auto">
             <div class="p-6 text-xl font-bold border-b border-gray-800 flex items-center space-x-3">
                 <i class="fas fa-hospital text-blue-400"></i>
                 <span>Admin Panel</span>
@@ -185,7 +203,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col main-content">
             <!-- Top Navbar -->
             <header class="header-gradient text-white p-4 flex justify-between items-center shadow-lg">
                 <span id="datetime" class="text-lg font-medium"></span>

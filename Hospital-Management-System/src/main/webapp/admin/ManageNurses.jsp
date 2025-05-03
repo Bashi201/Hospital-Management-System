@@ -5,9 +5,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <br>
-    <br>
-    <br>
     <title>Manage Nurses</title>
     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/admin/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,6 +18,7 @@
             left: 256px; /* Offset to start after the sidebar */
             right: 0;
             z-index: 900; /* Ensure it stays above other content */
+            height: 64px; /* Explicitly set height for consistency */
         }
 
         /* Sidebar Hover Effect */
@@ -204,6 +202,7 @@
         }
         .main-content {
             position: relative;
+            padding-top: 80px; /* Added padding to push content below the fixed header */
         }
         .main-content::before {
             content: '';

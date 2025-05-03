@@ -5,8 +5,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <br>
-    <br>
     <title>Manage Rooms</title>
     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/admin/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,12 +12,13 @@
     <style>
         /* Custom Gradient for Header */
         .header-gradient {
-             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
             position: fixed; /* Make header fixed */
             top: 0;
             left: 256px; /* Offset to start after the sidebar */
             right: 0;
             z-index: 900; /* Ensure it stays above other content */
+            height: 64px; /* Explicitly set height for consistency */
         }
 
         /* Sidebar Hover Effect */
@@ -205,6 +204,7 @@
         }
         .main-content {
             position: relative;
+            padding-top: 80px; /* Added padding to push content below the fixed header */
         }
         .main-content::before {
             content: '';
