@@ -132,7 +132,7 @@
             <!-- Patient Management Tiles -->
             <div class="container mx-auto p-8 pt-20 flex-1">
                 <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Patient Management</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                     <a href="${pageContext.request.contextPath}/admin?action=createPatient" 
                        class="patient-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
                         <i class="fas fa-user-plus text-6xl text-white mb-4"></i>
@@ -144,6 +144,12 @@
                         <i class="fas fa-list text-6xl text-white mb-4"></i>
                         <h2 class="text-2xl font-semibold text-white">View Patients</h2>
                         <p class="text-gray-100 mt-2 text-center">Browse and search all patients</p>
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin?action=viewAppointments" 
+                       class="patient-card bg-gradient-to-br from-blue-600 to-blue-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
+                        <i class="fas fa-calendar-check text-6xl text-white mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-white">View Appointments</h2>
+                        <p class="text-gray-100 mt-2 text-center">View all appointments by day</p>
                     </a>
                 </div>
             </div>

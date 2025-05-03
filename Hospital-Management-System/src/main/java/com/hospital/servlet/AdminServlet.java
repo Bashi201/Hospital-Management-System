@@ -118,6 +118,10 @@ public class AdminServlet extends HttpServlet {
                 List<Patient> patients = patientService.getAllPatients();
                 request.setAttribute("patients", patients);
                 request.getRequestDispatcher("/admin/ViewAllPatients.jsp").forward(request, response);
+            } else if (action.equals("viewAppointments")) {
+                List<PatientService.Appointment> appointments = patientService.getAllAppointments();
+                request.setAttribute("appointments", appointments);
+                request.getRequestDispatcher("/admin/ViewAppointments.jsp").forward(request, response);
             } else if (action.equals("deletePatient")) {
                 String id = request.getParameter("id");
                 if (patientService.deletePatient(id)) {

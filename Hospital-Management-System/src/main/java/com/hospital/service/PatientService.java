@@ -382,6 +382,53 @@ public class PatientService {
         return history;
     }
 
+    // Get All Appointments
+    public List<Appointment> getAllAppointments() throws SQLException {
+        List<Appointment> appointments = new ArrayList<>();
+        String query = "SELECT * FROM appointments ORDER BY appointment_date, appointment_time";
+        try (Connection connection = DBConnection.getConnection();
+             Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                Appointment appointment = new Appointment();
+                appointment.setId(rs.getInt("id"));
+                appointment.setPatientId(rs.getString("patient_id"));
+                appointment.setDoctorId(rs.getString("doctor_id"));
+                appointment.setAppointmentDate(rs.getString("appointment_date"));
+                appointment.setAppointmentTime(rs.getString("appointment_time"));
+                appointment.setStatus(rs.getString("status"));
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error in getAllAppointments: " + e.getMessage());
+            throw e;
+        }
+        return appointments;
+    }
+
+    // Model class for Appointment
+    public static class Appointment {
+        private int id;
+        private String patientId;
+        private String doctorId;
+        private String appointmentDate;
+        private String appointmentTime;
+        private String status;
+
+        public int getId() { return id; }
+        public void setId(int id) { this.id = id; }
+        public String getPatientId() { return patientId; }
+        public void setPatientId(String patientId) { this.patientId = patientId; }
+        public String getDoctorId() { return doctorId; }
+        public void setDoctorId(String doctorId) { this.doctorId = doctorId; }
+        public String getAppointmentDate() { return appointmentDate; }
+        public void setAppointmentDate(String appointmentDate) { this.appointmentDate = appointmentDate; }
+        public String getAppointmentTime() { return appointmentTime; }
+        public void setAppointmentTime(String appointmentTime) { this.appointmentTime = appointmentTime; }
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+    }
+
     // Model class for AmbulanceHistory
     public static class AmbulanceHistory {
         private int id;
