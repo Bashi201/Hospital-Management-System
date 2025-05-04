@@ -33,6 +33,7 @@
         .payroll-table {
             border-collapse: collapse;
             width: 100%;
+            table-layout: auto; /* Allow columns to adjust based on content */
         }
         .payroll-table th, .payroll-table td {
             border: 1px solid #d1d5db;
@@ -46,6 +47,16 @@
         .payroll-table tr:nth-child(even) {
             background-color: #f9fafb;
         }
+        
+        /* Specific width for the Name column to ensure full visibility */
+        .payroll-table th:nth-child(2), .payroll-table td:nth-child(2) {
+            width: 250px; /* Increase width to accommodate full names */
+            white-space: nowrap; /* Prevent wrapping of the name */
+        }
+        .payroll-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        
         .payroll-table input {
             width: 100%;
             border: none;

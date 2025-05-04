@@ -57,25 +57,41 @@
         .sidebar::-webkit-scrollbar-track {
             background: #1f2937;
         }
-         .main-content {
+
+        /* Fixed Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0; /* Ensure it stretches to the bottom */
+            left: 0;
+            width: 256px; /* Match Tailwind's w-64 (64 * 4px = 256px) */
+            z-index: 1000; /* Ensure sidebar is above other content */
+            overflow-y: auto; /* Allow scrolling within sidebar */
+        }
+
+        /* Main Content Background */
+        .main-content {
             position: relative;
+            margin-left: 256px; /* Offset to account for fixed sidebar width */
+            min-height: 100vh; /* Ensure it takes full viewport height */
         }
         .main-content::before {
             content: '';
-            position: absolute;
+            position: fixed; /* Fix the background relative to the viewport */
             top: 0;
-            left: 0;
+            left: 256px; /* Offset to start after the sidebar */
             right: 0;
             bottom: 0;
             background: url('${pageContext.request.contextPath}/admin/assets/AdminDashBGWithoutLogo.png') no-repeat center center/cover;
-            z-index: -1;
+            background-attachment: fixed; /* Prevent background from scrolling */
+            z-index: -1; /* Keep background behind content */
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-blue-50 font-sans">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-900 text-white flex flex-col min-h-screen sidebar overflow-y-auto">
+        <aside class="w-64 bg-gray-900 text-white flex flex-col sidebar overflow-y-auto">
             <div class="p-6 text-xl font-bold border-b border-gray-800 flex items-center space-x-3">
                 <i class="fas fa-hospital text-blue-400"></i>
                 <span>Admin Panel</span>

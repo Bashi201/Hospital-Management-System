@@ -13,12 +13,12 @@
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
-            position: fixed; /* Make header fixed */
+            position: fixed;
             top: 0;
-            left: 256px; /* Offset to start after the sidebar */
+            left: 256px;
             right: 0;
-            z-index: 900; /* Ensure it stays above other content */
-            height: 64px; /* Explicitly set height for consistency */
+            z-index: 900;
+            height: 64px;
         }
 
         /* Sidebar Hover Effect */
@@ -195,14 +195,14 @@
         }
 
         /* Ensure buttons are clickable */
-        .delete-button, .submit-button, .close-button {
+        .delete-button, .assign-button, .remove-room-button, .submit-button, .close-button {
             pointer-events: auto;
             z-index: 20;
             cursor: pointer;
         }
         .main-content {
             position: relative;
-            padding-top: 80px; /* Added padding to push content below the fixed header */
+            padding-top: 80px;
         }
         .main-content::before {
             content: '';
@@ -294,7 +294,7 @@
 
                 <!-- Instruction for Plus Button -->
                 <div class="text-center mb-6 max-w-7xl mx-auto">
-                    <p class="text-gray-600 bg-blue-50 p-3 rounded-md text-sm font-medium">Use the + button to create a new nurse</p>
+                    <p class="text-gray-600 bg-blue-50 p-3 rounded-md text-sm font-medium">Use the + button to create a new nurse, 'Assign Room' to assign a nurse to a booked room, or 'Remove Room' to unassign a nurse from their room.</p>
                 </div>
 
                 <!-- Nurse List (Table Layout) -->
@@ -307,6 +307,7 @@
                                 <th class="text-left">Email</th>
                                 <th class="text-left">Phone</th>
                                 <th class="text-left">Shift</th>
+                                <th class="text-left">Assigned Room</th>
                                 <th class="text-left">Action</th>
                             </tr>
                         </thead>
@@ -318,9 +319,32 @@
                                     <td class="text-sm text-gray-900">${nurse.email}</td>
                                     <td class="text-sm text-gray-900">${nurse.phone}</td>
                                     <td class="text-sm text-gray-900">${nurse.shift}</td>
+                                    <td class="text-sm text-gray-900">
+                                        <c:choose>
+                                            <c:when test="${not empty nurse.assignedRoomId}">
+                                                ${nurse.assignedRoomId}
+                                            </c:when>
+                                            <c:otherwise>
+                                                None
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>
+                                        <c:if test="${not empty rooms}">
+                                            <button class="assign-button inline-flex items-center px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors"
+                                                    onclick="openAssignModal('${nurse.id}', '${nurse.name}')">
+                                                <i class="fas fa-bed mr-2"></i> Assign Room
+                                            </button>
+                                        </c:if>
+                                        <c:if test="${not empty nurse.assignedRoomId}">
+                                            <a href="${pageContext.request.contextPath}/admin?action=removeNurseRoom&nurseId=${nurse.id}"
+                                               class="remove-room-button inline-flex items-center px-3 py-1 bg-yellow-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700 transition-colors ml-2"
+                                               onclick="return confirm('Are you sure you want to remove nurse ${nurse.id} from room ${nurse.assignedRoomId}?');">
+                                                <i class="fas fa-times-circle mr-2"></i> Remove Room
+                                            </a>
+                                        </c:if>
                                         <a href="${pageContext.request.contextPath}/admin?action=deleteNurse&id=${nurse.id}"
-                                           class="delete-button inline-flex items-center px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
+                                           class="delete-button inline-flex items-center px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors ml-2"
                                            onclick="return confirm('Are you sure you want to delete nurse ${nurse.id}?');">
                                             <i class="fas fa-trash mr-2"></i> Delete
                                         </a>
@@ -331,6 +355,12 @@
                     </table>
                 </div>
 
+                <c:if test="${empty rooms}">
+                    <div class="text-yellow-600 text-center mt-6 font-medium bg-yellow-50 p-3 rounded-md max-w-7xl mx-auto">
+                        No booked rooms are currently available for nurse assignment.
+                    </div>
+                </c:if>
+
                 <!-- Plus Button -->
                 <div class="relative">
                     <button id="toggleForm" class="plus-button fixed bottom-8 right-8 bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700">
@@ -339,7 +369,7 @@
                     </button>
                 </div>
 
-                <!-- Modal Form -->
+                <!-- Modal Form for Creating Nurse -->
                 <div id="formModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div class="modal-content bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full">
                         <div class="flex justify-between items-center mb-6">
@@ -392,6 +422,42 @@
                         </form>
                     </div>
                 </div>
+
+                <!-- Modal Form for Assigning Room -->
+                <div id="assignRoomModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div class="modal-content bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800">Assign Room to Nurse</h3>
+                            <button id="closeAssignRoom" class="close-button text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <form action="${pageContext.request.contextPath}/admin" method="post" class="space-y-6">
+                            <input type="hidden" name="action" value="assignNurseRoom">
+                            <input type="hidden" id="assignNurseId" name="nurseId">
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="assignNurseName" name="nurseName" readonly
+                                       class="w-full p-3 border border-gray-300 rounded-md bg-gray-100">
+                            </div>
+                            <div class="input-group">
+                                <i class="fas fa-bed"></i>
+                                <select id="roomId" name="roomId" required
+                                        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Booked Room</option>
+                                    <c:forEach var="room" items="${rooms}">
+                                        <option value="${room.id}">${room.id} - ${room.type} (Booked)</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="submit-button w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors">
+                                    Assign Room
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -415,31 +481,55 @@
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
-        // Toggle Modal Form
+        // Toggle Create Nurse Modal
         const toggleButton = document.getElementById('toggleForm');
         const formModal = document.getElementById('formModal');
-        const closeButton = document.getElementById('closeForm');
-        const modalContent = document.querySelector('.modal-content');
+        const closeFormButton = document.getElementById('closeForm');
+        const createModalContent = document.querySelector('#formModal .modal-content');
 
         toggleButton.addEventListener('click', (e) => {
             e.stopPropagation();
             formModal.classList.toggle('active');
         });
 
-        closeButton.addEventListener('click', (e) => {
+        closeFormButton.addEventListener('click', (e) => {
             e.stopPropagation();
             formModal.classList.remove('active');
         });
 
-        // Close modal when clicking outside modal content
         formModal.addEventListener('click', (e) => {
             if (e.target === formModal) {
                 formModal.classList.remove('active');
             }
         });
 
-        // Prevent clicks on modal content from closing the modal
-        modalContent.addEventListener('click', (e) => {
+        createModalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Toggle Assign Room Modal
+        const assignRoomModal = document.getElementById('assignRoomModal');
+        const closeAssignRoomButton = document.getElementById('closeAssignRoom');
+        const assignModalContent = document.querySelector('#assignRoomModal .modal-content');
+
+        function openAssignModal(nurseId, nurseName) {
+            document.getElementById('assignNurseId').value = nurseId;
+            document.getElementById('assignNurseName').value = nurseName;
+            assignRoomModal.classList.add('active');
+        }
+
+        closeAssignRoomButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            assignRoomModal.classList.remove('active');
+        });
+
+        assignRoomModal.addEventListener('click', (e) => {
+            if (e.target === assignRoomModal) {
+                assignRoomModal.classList.remove('active');
+            }
+        });
+
+        assignModalContent.addEventListener('click', (e) => {
             e.stopPropagation();
         });
     </script>

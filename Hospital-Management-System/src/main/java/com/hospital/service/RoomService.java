@@ -53,7 +53,29 @@ public class RoomService {
         conn.close();
         return rooms;
     }
-
+    
+    public List<Room> getBookedRooms() throws SQLException {
+        List<Room> rooms = new ArrayList<>();
+        Connection conn = DBConnection.getConnection();
+        String sql = "SELECT * FROM rooms WHERE availability = 'Booked'";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        while (rs.next()) {
+            Room room = new Room();
+            room.setId(rs.getString("id"));
+            room.setType(rs.getString("type"));
+            room.setPrice(rs.getString("price"));
+            room.setAvailability(rs.getString("availability"));
+            room.setDescription(rs.getString("description"));
+            rooms.add(room);
+        }
+        rs.close();
+        stmt.close();
+        conn.close();
+        return rooms;
+    }
+    
+    
     public List<Room> getAllRooms() throws SQLException {
         List<Room> rooms = new ArrayList<>();
         Connection conn = DBConnection.getConnection();

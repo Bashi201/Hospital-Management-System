@@ -165,7 +165,9 @@ public class AdminServlet extends HttpServlet {
                 }
             } else if (action.equals("nurses")) {
                 List<Nurse> nurses = nurseService.getAllNurses();
+                List<Room> rooms = roomService.getBookedRooms();
                 request.setAttribute("nurses", nurses);
+                request.setAttribute("rooms", rooms);
                 request.getRequestDispatcher("/admin/ManageNurses.jsp").forward(request, response);
             } else if (action.equals("deleteNurse")) {
                 String id = request.getParameter("id");
@@ -174,7 +176,21 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     request.setAttribute("errorMessage", "Failed to delete nurse. It may be referenced or does not exist.");
                     List<Nurse> nurses = nurseService.getAllNurses();
+                    List<Room> rooms = roomService.getBookedRooms();
                     request.setAttribute("nurses", nurses);
+                    request.setAttribute("rooms", rooms);
+                    request.getRequestDispatcher("/admin/ManageNurses.jsp").forward(request, response);
+                }
+            } else if (action.equals("removeNurseRoom")) {
+                String nurseId = request.getParameter("nurseId");
+                if (nurseService.removeNurseFromRoom(nurseId)) {
+                    response.sendRedirect(request.getContextPath() + "/admin?action=nurses");
+                } else {
+                    request.setAttribute("errorMessage", "Failed to remove nurse from room. Nurse or assignment may not exist.");
+                    List<Nurse> nurses = nurseService.getAllNurses();
+                    List<Room> rooms = roomService.getBookedRooms();
+                    request.setAttribute("nurses", nurses);
+                    request.setAttribute("rooms", rooms);
                     request.getRequestDispatcher("/admin/ManageNurses.jsp").forward(request, response);
                 }
             } else if (action.equals("salary")) {
@@ -276,7 +292,7 @@ public class AdminServlet extends HttpServlet {
                 String password = request.getParameter("password");
                 Part picturePart = request.getPart("filename");
 
-                String filename = handlePhotoUpload(picturePart, "uploads");
+                String filename = handlePhotoUpload(picturePart, "Uploads");
 
                 Admin admin = new Admin();
                 admin.setId(id);
@@ -297,7 +313,7 @@ public class AdminServlet extends HttpServlet {
                 String password = request.getParameter("password");
                 Part picturePart = request.getPart("filename");
 
-                String filename = handlePhotoUpload(picturePart, "uploads");
+                String filename = handlePhotoUpload(picturePart, "Uploads");
 
                 Admin admin = adminService.getAdmin(id);
                 admin.setName(name);
@@ -340,7 +356,7 @@ public class AdminServlet extends HttpServlet {
                 String password = request.getParameter("password");
                 Part picturePart = request.getPart("picture");
 
-                String picture = handlePhotoUpload(picturePart, "uploads");
+                String picture = handlePhotoUpload(picturePart, "Uploads");
 
                 Doctor doctor = new Doctor();
                 doctor.setId(id);
@@ -452,7 +468,7 @@ public class AdminServlet extends HttpServlet {
                 String shift = request.getParameter("shift");
                 Part picturePart = request.getPart("filename");
 
-                String filename = handlePhotoUpload(picturePart, "uploads");
+                String filename = handlePhotoUpload(picturePart, "Uploads");
 
                 Nurse nurse = new Nurse();
                 nurse.setId(id);
@@ -467,7 +483,23 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     request.setAttribute("errorMessage", "Error creating nurse. ID or email might already exist.");
                     List<Nurse> nurses = nurseService.getAllNurses();
+                    List<Room> rooms = roomService.getBookedRooms();
                     request.setAttribute("nurses", nurses);
+                    request.setAttribute("rooms", rooms);
+                    request.getRequestDispatcher("/admin/ManageNurses.jsp").forward(request, response);
+                }
+            } else if (action.equals("assignNurseRoom")) {
+                String nurseId = request.getParameter("nurseId");
+                String roomId = request.getParameter("roomId");
+
+                if (nurseService.assignNurseToRoom(nurseId, roomId)) {
+                    response.sendRedirect(request.getContextPath() + "/admin?action=nurses");
+                } else {
+                    request.setAttribute("errorMessage", "Error assigning nurse to room. Nurse or room may not exist, or room is not booked.");
+                    List<Nurse> nurses = nurseService.getAllNurses();
+                    List<Room> rooms = roomService.getBookedRooms();
+                    request.setAttribute("nurses", nurses);
+                    request.setAttribute("rooms", rooms);
                     request.getRequestDispatcher("/admin/ManageNurses.jsp").forward(request, response);
                 }
             } else if (action.equals("savePayroll")) {
