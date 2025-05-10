@@ -118,7 +118,7 @@
 
             <!-- Bills List -->
             <div class="container mx-auto p-8 pt-20 flex-1">
-                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Your Pending Bills</h1>
+                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Your Bills</h1>
 
                 <c:if test="${not empty errorMessage}">
                     <div class="text-red-500 text-center mb-6 font-medium bg-red-50 p-3 rounded-md">${errorMessage}</div>
@@ -127,45 +127,166 @@
                     <div class="text-green-500 text-center mb-6 font-medium bg-green-50 p-3 rounded-md">${successMessage}</div>
                 </c:if>
 
-                <div class="table-container bg-white p-6 rounded-xl shadow-md">
-                    <c:choose>
-                        <c:when test="${empty bills}">
-                            <p class="text-gray-600 text-center">No pending bills found.</p>
-                        </c:when>
-                        <c:otherwise>
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr class="bg-teal-500 text-white">
-                                        <th class="p-3">Bill ID</th>
-                                        <th class="p-3">Room ID</th>
-                                        <th class="p-3">Check-In Date</th>
-                                        <th class="p-3">Check-Out Date</th>
-                                        <th class="p-3">Days Stayed</th>
-                                        <th class="p-3">Total Amount</th>
-                                        <th class="p-3">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:forEach var="bill" items="${bills}">
-                                        <tr class="border-b hover:bg-gray-50">
-                                            <td class="p-3">${bill.id}</td>
-                                            <td class="p-3">${bill.roomId}</td>
-                                            <td class="p-3">${bill.checkInDate}</td>
-                                            <td class="p-3">${bill.checkOutDate}</td>
-                                            <td class="p-3">${bill.daysStayed}</td>
-                                            <td class="p-3">$${bill.totalAmount}</td>
-                                            <td class="p-3">
-                                                <a href="${pageContext.request.contextPath}/patient?action=payBill&roomId=${bill.roomId}" 
-                                                   class="text-teal-500 hover:text-teal-700 font-medium">
-                                                    Pay Now
-                                                </a>
-                                            </td>
+                <!-- Pending Room Bills -->
+                <div class="mb-12">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Pending Room Bills</h2>
+                    <div class="table-container bg-white p-6 rounded-xl shadow-md">
+                        <c:choose>
+                            <c:when test="${empty pendingRoomBills}">
+                                <p class="text-gray-600 text-center">No pending room bills found.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <table class="w-full text-left">
+                                    <thead>
+                                        <tr class="bg-teal-500 text-white">
+                                            <th class="p-3">Bill ID</th>
+                                            <th class="p-3">Room ID</th>
+                                            <th class="p-3">Check-In Date</th>
+                                            <th class="p-3">Check-Out Date</th>
+                                            <th class="p-3">Days Stayed</th>
+                                            <th class="p-3">Total Amount</th>
+                                            <th class="p-3">Action</th>
                                         </tr>
-                                    </c:forEach>
-                                </tbody>
-                            </table>
-                        </c:otherwise>
-                    </c:choose>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="bill" items="${pendingRoomBills}">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3">${bill.id}</td>
+                                                <td class="p-3">${bill.roomId}</td>
+                                                <td class="p-3">${bill.checkInDate}</td>
+                                                <td class="p-3">${bill.checkOutDate}</td>
+                                                <td class="p-3">${bill.daysStayed}</td>
+                                                <td class="p-3">$${bill.totalAmount}</td>
+                                                <td class="p-3">
+                                                    <a href="${pageContext.request.contextPath}/patient?action=payBill&roomId=${bill.roomId}" 
+                                                       class="text-teal-500 hover:text-teal-700 font-medium">
+                                                        Pay Now
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+
+                <!-- Pending Appointment Bills -->
+                <div class="mb-12">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Pending Appointment Bills</h2>
+                    <div class="table-container bg-white p-6 rounded-xl shadow-md">
+                        <c:choose>
+                            <c:when test="${empty pendingAppointmentBills}">
+                                <p class="text-gray-600 text-center">No pending appointment bills found.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <table class="w-full text-left">
+                                    <thead>
+                                        <tr class="bg-teal-500 text-white">
+                                            <th class="p-3">Bill ID</th>
+                                            <th class="p-3">Appointment ID</th>
+                                            <th class="p-3">Appointment Date</th>
+                                            <th class="p-3">Total Amount</th>
+                                            <th class="p-3">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="bill" items="${pendingAppointmentBills}">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3">${bill.id}</td>
+                                                <td class="p-3">${bill.appointmentId}</td>
+                                                <td class="p-3">${bill.checkInDate}</td>
+                                                <td class="p-3">$${bill.totalAmount}</td>
+                                                <td class="p-3">
+                                                    <a href="${pageContext.request.contextPath}/patient?action=payAppointmentBill&appointmentId=${bill.appointmentId}" 
+                                                       class="text-teal-500 hover:text-teal-700 font-medium">
+                                                        Pay Now
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+
+                <!-- Paid Room Bills -->
+                <div class="mb-12">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Paid Room Bills</h2>
+                    <div class="table-container bg-white p-6 rounded-xl shadow-md">
+                        <c:choose>
+                            <c:when test="${empty paidRoomBills}">
+                                <p class="text-gray-600 text-center">No paid room bills found.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <table class="w-full text-left">
+                                    <thead>
+                                        <tr class="bg-green-500 text-white">
+                                            <th class="p-3">Bill ID</th>
+                                            <th class="p-3">Room ID</th>
+                                            <th class="p-3">Check-In Date</th>
+                                            <th class="p-3">Check-Out Date</th>
+                                            <th class="p-3">Days Stayed</th>
+                                            <th class="p-3">Total Amount</th>
+                                            <th class="p-3">Payment Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="bill" items="${paidRoomBills}">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3">${bill.id}</td>
+                                                <td class="p-3">${bill.roomId}</td>
+                                                <td class="p-3">${bill.checkInDate}</td>
+                                                <td class="p-3">${bill.checkOutDate}</td>
+                                                <td class="p-3">${bill.daysStayed}</td>
+                                                <td class="p-3">$${bill.totalAmount}</td>
+                                                <td class="p-3">${bill.paymentDate}</td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+
+                <!-- Paid Appointment Bills -->
+                <div>
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Paid Appointment Bills</h2>
+                    <div class="table-container bg-white p-6 rounded-xl shadow-md">
+                        <c:choose>
+                            <c:when test="${empty paidAppointmentBills}">
+                                <p class="text-gray-600 text-center">No paid appointment bills found.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <table class="w-full text-left">
+                                    <thead>
+                                        <tr class="bg-green-500 text-white">
+                                            <th class="p-3">Bill ID</th>
+                                            <th class="p-3">Appointment ID</th>
+                                            <th class="p-3">Appointment Date</th>
+                                            <th class="p-3">Total Amount</th>
+                                            <th class="p-3">Payment Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="bill" items="${paidAppointmentBills}">
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="p-3">${bill.id}</td>
+                                                <td class="p-3">${bill.appointmentId}</td>
+                                                <td class="p-3">${bill.checkInDate}</td>
+                                                <td class="p-3">$${bill.totalAmount}</td>
+                                                <td class="p-3">${bill.paymentDate}</td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
                 </div>
             </div>
         </div>
