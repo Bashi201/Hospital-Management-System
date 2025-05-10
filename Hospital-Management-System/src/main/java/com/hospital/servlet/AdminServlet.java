@@ -163,6 +163,16 @@ public class AdminServlet extends HttpServlet {
                     request.setAttribute("rooms", rooms);
                     request.getRequestDispatcher("/admin/ManageRooms.jsp").forward(request, response);
                 }
+            } else if (action.equals("makeAvailable")) {
+                String id = request.getParameter("id");
+                if (roomService.makeRoomAvailable(id)) {
+                    response.sendRedirect(request.getContextPath() + "/admin?action=rooms");
+                } else {
+                    request.setAttribute("errorMessage", "Failed to make room available. Room may not exist or is not booked.");
+                    List<Room> rooms = roomService.getAllRooms();
+                    request.setAttribute("rooms", rooms);
+                    request.getRequestDispatcher("/admin/ManageRooms.jsp").forward(request, response);
+                }
             } else if (action.equals("nurses")) {
                 List<Nurse> nurses = nurseService.getAllNurses();
                 List<Room> rooms = roomService.getBookedRooms();

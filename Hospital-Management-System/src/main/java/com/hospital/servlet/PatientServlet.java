@@ -7,6 +7,7 @@ import com.hospital.model.Ambulance;
 import com.hospital.service.DoctorService;
 import com.hospital.service.PatientService;
 import com.hospital.service.RoomService;
+import com.hospital.service.BillService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,6 +27,7 @@ public class PatientServlet extends HttpServlet {
     private PatientService patientService;
     private DoctorService doctorService;
     private RoomService roomService;
+    private BillService billService;
     private static final Logger LOGGER = Logger.getLogger(PatientServlet.class.getName());
 
     @Override
@@ -34,6 +36,7 @@ public class PatientServlet extends HttpServlet {
         patientService = new PatientService();
         doctorService = new DoctorService();
         roomService = new RoomService();
+        billService = new BillService();
         LOGGER.info("PatientServlet initialized");
     }
 
@@ -47,16 +50,15 @@ public class PatientServlet extends HttpServlet {
         }
 
         String action = request.getParameter("action");
+        Patient loggedInPatient = (Patient) session.getAttribute("patient");
+        request.setAttribute("name", loggedInPatient.getName());
+
         if (action != null && action.equals("logout")) {
-            Patient loggedInPatient = (Patient) session.getAttribute("patient");
             LOGGER.info("Patient logging out: " + loggedInPatient.getGmail());
             session.invalidate();
             response.sendRedirect(request.getContextPath() + "/patient/login");
             return;
         }
-
-        Patient loggedInPatient = (Patient) session.getAttribute("patient");
-        request.setAttribute("name", loggedInPatient.getName());
 
         if (action == null || action.isEmpty()) {
             request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
@@ -116,6 +118,41 @@ public class PatientServlet extends HttpServlet {
             }
         } else if (action.equals("ambulanceDashboard")) {
             request.getRequestDispatcher("/patient/AmbulanceDashboard.jsp").forward(request, response);
+        } else if (action.equals("payBill")) {
+            try {
+                String roomId = request.getParameter("roomId");
+                if (roomId == null || roomId.trim().isEmpty()) {
+                    request.setAttribute("errorMessage", "Room ID is required.");
+                    request.getRequestDispatcher("/patient/ViewBills.jsp").forward(request, response);
+                    return;
+                }
+                BillService.Bill bill = billService.getBillByPatientAndRoom(loggedInPatient.getId(), roomId);
+                if (bill != null) {
+                    request.setAttribute("bill", bill);
+                    request.getRequestDispatcher("/patient/PayBill.jsp").forward(request, response);
+                } else {
+                    request.setAttribute("errorMessage", "No pending bill found for this room.");
+                    request.getRequestDispatcher("/patient/ViewBills.jsp").forward(request, response);
+                }
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error fetching bill for roomId: " + request.getParameter("roomId"), e);
+                request.setAttribute("errorMessage", "Error loading bill: " + e.getMessage());
+                request.getRequestDispatcher("/patient/ViewBills.jsp").forward(request, response);
+            }
+        } else if (action.equals("viewBills")) {
+            try {
+                List<BillService.Bill> bills = billService.getPendingBillsByPatient(loggedInPatient.getId());
+                request.setAttribute("bills", bills);
+                request.getRequestDispatcher("/patient/ViewBills.jsp").forward(request, response);
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error fetching pending bills for patientId: " + loggedInPatient.getId(), e);
+                request.setAttribute("errorMessage", "Error loading bills: " + e.getMessage());
+                request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Unexpected error fetching pending bills for patientId: " + loggedInPatient.getId(), e);
+                request.setAttribute("errorMessage", "Unexpected error: " + e.getMessage());
+                request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
+            }
         } else {
             request.getRequestDispatcher("/patient/PatientDashHome.jsp").forward(request, response);
         }
@@ -179,22 +216,19 @@ public class PatientServlet extends HttpServlet {
             } else if (action.equals("bookRoom")) {
                 String roomId = request.getParameter("roomType");
                 String checkInDate = request.getParameter("checkInDate");
-                String checkOutDate = request.getParameter("checkOutDate");
 
                 if (roomId != null && !roomId.trim().isEmpty() && 
-                    checkInDate != null && !checkInDate.trim().isEmpty() && 
-                    checkOutDate != null && !checkOutDate.trim().isEmpty()) {
+                    checkInDate != null && !checkInDate.trim().isEmpty()) {
                     try {
                         boolean booked = patientService.bookRoom(
                             loggedInPatient.getId(),
                             roomId,
-                            checkInDate,
-                            checkOutDate
+                            checkInDate
                         );
                         if (booked) {
                             request.setAttribute("successMessage", 
                                 "Room booked successfully: Room ID " + roomId + 
-                                " from " + checkInDate + " to " + checkOutDate);
+                                " from " + checkInDate);
                         } else {
                             request.setAttribute("errorMessage", "Failed to book room. Room may not be available.");
                         }
@@ -239,6 +273,39 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", "Please fill all fields correctly.");
                 }
                 request.getRequestDispatcher("/patient/AmbulanceBookingForm.jsp").forward(request, response);
+            } else if (action.equals("processPayment")) {
+                String billId = request.getParameter("billId");
+                String roomId = request.getParameter("roomId");
+                String cardNumber = request.getParameter("cardNumber");
+                String expiry = request.getParameter("expiry");
+                String cvv = request.getParameter("cvv");
+
+                if (billId != null && !billId.trim().isEmpty() &&
+                    cardNumber != null && !cardNumber.trim().isEmpty() &&
+                    expiry != null && !expiry.trim().isEmpty() &&
+                    cvv != null && !cvv.trim().isEmpty()) {
+                    try {
+                        boolean paid = billService.processPayment(Integer.parseInt(billId), cardNumber, expiry, cvv);
+                        if (paid) {
+                            request.setAttribute("successMessage", "Payment processed successfully.");
+                        } else {
+                            request.setAttribute("errorMessage", "Payment failed. Please check card details.");
+                        }
+                    } catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE, "Error processing payment for billId: " + billId, e);
+                        request.setAttribute("errorMessage", "Database error: " + e.getMessage());
+                    }
+                } else {
+                    request.setAttribute("errorMessage", "Please fill all payment fields correctly.");
+                }
+                try {
+                    BillService.Bill bill = billService.getBillByPatientAndRoom(loggedInPatient.getId(), roomId);
+                    request.setAttribute("bill", bill);
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error fetching bill after payment for roomId: " + roomId, e);
+                    request.setAttribute("errorMessage", "Error loading bill: " + e.getMessage());
+                }
+                request.getRequestDispatcher("/patient/PayBill.jsp").forward(request, response);
             } else {
                 response.sendRedirect(request.getContextPath() + "/patient/login");
             }

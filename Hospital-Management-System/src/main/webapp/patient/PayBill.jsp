@@ -5,17 +5,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book a Room</title>
+    <title>Pay Bill</title>
     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #134e4a, #2dd4bf);
         }
-
-        /* Sidebar Hover Effect */
         .sidebar-link {
             transition: all 0.3s ease;
         }
@@ -23,8 +20,6 @@
             transform: translateX(10px);
             background: linear-gradient(90deg, #2dd4bf, #5eead4);
         }
-
-        /* Form Container Hover Effect */
         .form-container {
             transition: all 0.3s ease;
         }
@@ -32,16 +27,12 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
         }
-
-        /* Profile Image Animation */
         .profile-img {
             transition: transform 0.3s ease;
         }
         .profile-img:hover {
             transform: scale(1.1);
         }
-
-        /* Custom Scrollbar for Sidebar */
         .sidebar::-webkit-scrollbar {
             width: 8px;
         }
@@ -94,7 +85,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col ml-64" style="background-image: url('${pageContext.request.contextPath}/patient/assets/RoomBookingFormBG.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div class="flex-1 flex flex-col ml-64">
             <!-- Top Navbar -->
             <header class="header-gradient text-white p-4 flex justify-between items-center shadow-lg">
                 <span id="datetime" class="text-lg font-medium"></span>
@@ -116,10 +107,10 @@
                 </div>
             </header>
 
-            <!-- Room Booking Form -->
+            <!-- Payment Form -->
             <div class="container mx-auto p-8 flex-1 flex items-center justify-center">
                 <div class="form-container bg-white p-8 rounded-xl shadow-md max-w-2xl w-full">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Book a Room</h2>
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Pay Your Bill</h2>
 
                     <c:if test="${not empty errorMessage}">
                         <div class="text-red-500 text-center mb-6 font-medium bg-red-50 p-3 rounded-md">${errorMessage}</div>
@@ -128,42 +119,62 @@
                         <div class="text-green-500 text-center mb-6 font-medium bg-green-50 p-3 rounded-md">${successMessage}</div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/patient" method="post" class="space-y-6">
-                        <input type="hidden" name="action" value="bookRoom">
-
-                        <!-- Room Type Selection -->
-                        <div class="flex items-center space-x-4">
-                            <label for="roomType" class="w-1/3 text-gray-700 font-medium">
-                                <i class="fas fa-bed mr-2 text-teal-500"></i> Room Type
-                            </label>
-                            <select id="roomType" name="roomType" class="w-2/3 p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500" required>
-                                <option value="" <c:if test="${selectedRoomId == null}">selected</c:if> disabled>Select Room Type</option>
-                                <c:forEach var="room" items="${availableRooms}">
-                                    <option value="${room.id}" <c:if test="${room.id == selectedRoomId}">selected</c:if>>
-                                        ${room.type} - ${room.price != null ? room.price : 'N/A'}/day
-                                    </option>
-                                </c:forEach>
-                            </select>
+                    <c:if test="${bill != null}">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Bill Details</h3>
+                            <p><strong>Room ID:</strong> ${bill.roomId}</p>
+                            <p><strong>Check-In Date:</strong> ${bill.checkInDate}</p>
+                            <p><strong>Check-Out Date:</strong> ${bill.checkOutDate}</p>
+                            <p><strong>Days Stayed:</strong> ${bill.daysStayed}</p>
+                            <p><strong>Total Amount:</strong> $${bill.totalAmount}</p>
+                            <p><strong>Payment Status:</strong> ${bill.paymentStatus}</p>
                         </div>
 
-                        <!-- Check-In Date -->
-                        <div class="flex items-center space-x-4">
-                            <label for="checkInDate" class="w-1/3 text-gray-700 font-medium">
-                                <i class="fas fa-calendar-alt mr-2 text-teal-500"></i> Check-In Date
-                            </label>
-                            <input type="date" id="checkInDate" name="checkInDate" 
-                                   class="w-2/3 p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500" 
-                                   min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" 
-                                   required>
-                        </div>
+                        <c:if test="${bill.paymentStatus == 'Pending'}">
+                            <form action="${pageContext.request.contextPath}/patient" method="post" class="space-y-6">
+                                <input type="hidden" name="action" value="processPayment">
+                                <input type="hidden" name="billId" value="${bill.id}">
+                                <input type="hidden" name="roomId" value="${bill.roomId}">
 
-                        <!-- Submit Button -->
-                        <div class="text-center">
-                            <button type="submit" class="bg-teal-500 text-white px-6 py-3 rounded-md hover:bg-teal-600 transition-colors">
-                                Book Room
-                            </button>
-                        </div>
-                    </form>
+                                <!-- Card Number -->
+                                <div class="flex items-center space-x-4">
+                                    <label for="cardNumber" class="w-1/3 text-gray-700 font-medium">
+                                        <i class="fas fa-credit-card mr-2 text-teal-500"></i> Card Number
+                                    </label>
+                                    <input type="text" id="cardNumber" name="cardNumber" 
+                                           class="w-2/3 p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                                           placeholder="1234 5678 9012 3456" required>
+                                </div>
+
+                                <!-- Expiry Date -->
+                                <div class="flex items-center space-x-4">
+                                    <label for="expiry" class="w-1/3 text-gray-700 font-medium">
+                                        <i class="fas fa-calendar-alt mr-2 text-teal-500"></i> Expiry Date
+                                    </label>
+                                    <input type="text" id="expiry" name="expiry" 
+                                           class="w-2/3 p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                                           placeholder="MM/YY" required>
+                                </div>
+
+                                <!-- CVV -->
+                                <div class="flex items-center space-x-4">
+                                    <label for="cvv" class="w-1/3 text-gray-700 font-medium">
+                                        <i class="fas fa-lock mr-2 text-teal-500"></i> CVV
+                                    </label>
+                                    <input type="text" id="cvv" name="cvv" 
+                                           class="w-2/3 p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500" 
+                                           placeholder="123" required>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="text-center">
+                                    <button type="submit" class="bg-teal-500 text-white px-6 py-3 rounded-md hover:bg-teal-600 transition-colors">
+                                        Pay Now
+                                    </button>
+                                </div>
+                            </form>
+                        </c:if>
+                    </c:if>
                 </div>
             </div>
         </div>

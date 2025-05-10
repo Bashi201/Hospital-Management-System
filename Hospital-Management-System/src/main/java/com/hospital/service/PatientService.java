@@ -137,7 +137,7 @@ public class PatientService {
     }
 
     // Book Room
-    public boolean bookRoom(String patientId, String roomId, String checkInDate, String checkOutDate) throws SQLException {
+    public boolean bookRoom(String patientId, String roomId, String checkInDate) throws SQLException {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -157,13 +157,12 @@ public class PatientService {
             statement.close();
 
             // Update the room with booking details
-            String sql = "UPDATE rooms SET patient_id = ?, check_in_date = ?, check_out_date = ?, status = 'Pending', availability = 'Booked' " +
+            String sql = "UPDATE rooms SET patient_id = ?, check_in_date = ?, status = 'Pending', availability = 'Booked' " +
                         "WHERE id = ?";
             statement = connection.prepareStatement(sql);
             statement.setString(1, patientId);
             statement.setDate(2, Date.valueOf(checkInDate));
-            statement.setDate(3, Date.valueOf(checkOutDate));
-            statement.setString(4, roomId);
+            statement.setString(3, roomId);
             int rowsAffected = statement.executeUpdate();
 
             return rowsAffected > 0;
@@ -256,7 +255,6 @@ public class PatientService {
                 booking.setRequestDate(rs.getString("request_date"));
                 booking.setRequestTime(rs.getString("request_time"));
                 booking.setStatus(rs.getString("status"));
-                // Optionally, you could add vehicle_number to the Ambulance model if needed
                 bookings.add(booking);
             }
         } catch (SQLException e) {

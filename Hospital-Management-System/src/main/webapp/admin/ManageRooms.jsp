@@ -13,12 +13,12 @@
         /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #1e3a8a, #3b82f6);
-            position: fixed; /* Make header fixed */
+            position: fixed;
             top: 0;
-            left: 256px; /* Offset to start after the sidebar */
+            left: 256px;
             right: 0;
-            z-index: 900; /* Ensure it stays above other content */
-            height: 64px; /* Explicitly set height for consistency */
+            z-index: 900;
+            height: 64px;
         }
 
         /* Sidebar Hover Effect */
@@ -197,14 +197,14 @@
         }
 
         /* Ensure buttons are clickable */
-        .delete-button, .submit-button, .close-button {
+        .delete-button, .submit-button, .close-button, .make-available-button {
             pointer-events: auto;
             z-index: 20;
             cursor: pointer;
         }
         .main-content {
             position: relative;
-            padding-top: 80px; /* Added padding to push content below the fixed header */
+            padding-top: 80px;
         }
         .main-content::before {
             content: '';
@@ -291,7 +291,7 @@
 
                 <!-- Instruction for Plus Button -->
                 <div class="text-center mb-6 max-w-7xl mx-auto">
-                    <p class="text-gray-600 bg-blue-50 p-3 rounded-md text-sm font-medium">Use the + button to create a new room</p>
+                    <p class="text-gray-600 bg-blue-50 p-3 rounded-md text-sm font-medium">Use the + button to create a new room or select 'Make Available' to free a booked room</p>
                 </div>
 
                 <!-- Room List (Table Layout) -->
@@ -320,11 +320,20 @@
                                     </td>
                                     <td class="text-sm text-gray-900">${room.description}</td>
                                     <td>
-                                        <a href="${pageContext.request.contextPath}/admin?action=deleteRoom&id=${room.id}"
-                                           class="delete-button inline-flex items-center px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
-                                           onclick="return confirm('Are you sure you want to delete room ${room.id}?');">
-                                            <i class="fas fa-trash mr-2"></i> Delete
-                                        </a>
+                                        <div class="flex space-x-2">
+                                            <a href="${pageContext.request.contextPath}/admin?action=deleteRoom&id=${room.id}"
+                                               class="delete-button inline-flex items-center px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
+                                               onclick="return confirm('Are you sure you want to delete room ${room.id}?');">
+                                                <i class="fas fa-trash mr-2"></i> Delete
+                                            </a>
+                                            <c:if test="${room.availability == 'Booked'}">
+                                                <a href="${pageContext.request.contextPath}/admin?action=makeAvailable&id=${room.id}"
+                                                   class="make-available-button inline-flex items-center px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors"
+                                                   onclick="return confirm('Are you sure you want to make room ${room.id} available?');">
+                                                    <i class="fas fa-check mr-2"></i> Make Available
+                                                </a>
+                                            </c:if>
+                                        </div>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -342,7 +351,7 @@
 
                 <!-- Modal Form -->
                 <div id="formModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div class="modal-content bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full">
+                    <div class="modal-content bg-white p-8 Rounded-xl shadow-2xl max-w-lg w-full">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-xl font-semibold text-gray-800">Create New Room</h3>
                             <button id="closeForm" class="close-button text-gray-500 hover:text-gray-700">

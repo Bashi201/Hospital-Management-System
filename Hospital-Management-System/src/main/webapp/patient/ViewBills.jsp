@@ -1,25 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Homepage</title>
+    <title>View Bills</title>
     <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/doctor/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* Custom Gradient for Header */
         .header-gradient {
             background: linear-gradient(90deg, #134e4a, #2dd4bf);
-            position: fixed; /* Make header fixed */
+            position: fixed;
             top: 0;
-            left: 256px; /* Offset to start after the sidebar */
+            left: 256px;
             right: 0;
-            z-index: 900; /* Ensure it stays above other content */
+            z-index: 900;
         }
-
-        /* Sidebar Hover Effect */
         .sidebar-link {
             transition: all 0.3s ease;
         }
@@ -27,26 +25,18 @@
             transform: translateX(10px);
             background: linear-gradient(90deg, #2dd4bf, #5eead4);
         }
-
-        /* Tile Hover Effect */
-        .dashboard-tile {
+        .table-container {
             transition: all 0.3s ease;
         }
-        .dashboard-tile:hover {
-            transform: translateY(-5px);
+        .table-container:hover {
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
         }
-
-        /* Profile Image Animation */
         .profile-img {
             transition: transform 0.3s ease;
         }
         .profile-img:hover {
             transform: scale(1.1);
         }
-
-        /* Custom Scrollbar for Sidebar */
         .sidebar::-webkit-scrollbar {
             width: 8px;
         }
@@ -56,21 +46,6 @@
         }
         .sidebar::-webkit-scrollbar-track {
             background: #1f2937;
-        }
-
-        /* Background for Main Content */
-        .main-content {
-            position: relative;
-        }
-        .main-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('${pageContext.request.contextPath}/patient/assets/PatientDashHome.png') no-repeat center center/cover;
-            z-index: -1;
         }
     </style>
 </head>
@@ -85,8 +60,8 @@
             <nav class="flex-1 p-4">
                 <ul>
                     <li class="mb-3">
-                        <a href="${pageContext.request.contextPath}/patient" class="sidebar-link flex items-center p-3 bg-teal-600 rounded text-white">
-                            <i class="fas fa-tachometer-alt mr-3 text-teal-200"></i> Dashboard
+                        <a href="${pageContext.request.contextPath}/patient" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-tachometer-alt mr-3 text-teal-400"></i> Dashboard
                         </a>
                     </li>
                     <li class="mb-3">
@@ -99,6 +74,16 @@
                             <i class="fas fa-user-md mr-3 text-teal-400"></i> Doctors
                         </a>
                     </li>
+                    <li class="mb-3">
+                        <a href="${pageContext.request.contextPath}/patient?action=rooms" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-bed mr-3 text-teal-400"></i> Rooms
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="${pageContext.request.contextPath}/patient?action=ambulanceDashboard" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
+                            <i class="fas fa-ambulance mr-3 text-teal-400"></i> Ambulance
+                        </a>
+                    </li>
                     <li>
                         <a href="${pageContext.request.contextPath}/patient?action=settings" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded text-white">
                             <i class="fas fa-cog mr-3 text-teal-400"></i> Settings
@@ -109,7 +94,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col ml-64 main-content">
+        <div class="flex-1 flex flex-col ml-64">
             <!-- Top Navbar -->
             <header class="header-gradient text-white p-4 flex justify-between items-center shadow-lg">
                 <span id="datetime" class="text-lg font-medium"></span>
@@ -121,57 +106,66 @@
                             <img src="${pageContext.request.contextPath}/patient_dp.jpeg" alt="Patient Profile Enlarged" class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>
-                    <span class="text-white font-medium">Welcome, ${name}</span>
-                    <a href="${pageContext.request.contextPath}/patient?action=logout" 
-                       class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
-                        Logout
-                    </a>
+                    <span class="text-white font-medium">${name != null ? name : "Patient"}</span>
+                    <form action="${pageContext.request.contextPath}/patient" method="post">
+                        <input type="hidden" name="action" value="logout">
+                        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                            Logout
+                        </button>
+                    </form>
                 </div>
             </header>
 
-            <!-- Main Content with Vertical Tiles -->
+            <!-- Bills List -->
             <div class="container mx-auto p-8 pt-20 flex-1">
-                <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Patient Dashboard</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl mx-auto">
-                    <!-- Channels Tile -->
-                    <a href="${pageContext.request.contextPath}/patient?action=channeling" 
-                       class="dashboard-tile bg-gradient-to-br from-teal-600 to-teal-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
-                        <i class="fas fa-calendar-alt text-6xl text-white mb-4"></i>
-                        <h2 class="text-2xl font-semibold text-white">Channels</h2>
-                        <p class="text-gray-100 text-sm mt-2">Book appointments</p>
-                    </a>
+                <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Your Pending Bills</h1>
 
-                    <!-- Doctors Tile -->
-                    <a href="${pageContext.request.contextPath}/patient?action=doctors" 
-                       class="dashboard-tile bg-gradient-to-br from-teal-600 to-teal-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
-                        <i class="fas fa-user-md text-6xl text-white mb-4"></i>
-                        <h2 class="text-2xl font-semibold text-white">Doctors</h2>
-                        <p class="text-gray-100 text-sm mt-2">View doctor profiles</p>
-                    </a>
+                <c:if test="${not empty errorMessage}">
+                    <div class="text-red-500 text-center mb-6 font-medium bg-red-50 p-3 rounded-md">${errorMessage}</div>
+                </c:if>
+                <c:if test="${not empty successMessage}">
+                    <div class="text-green-500 text-center mb-6 font-medium bg-green-50 p-3 rounded-md">${successMessage}</div>
+                </c:if>
 
-                    <!-- Rooms Tile -->
-                    <a href="${pageContext.request.contextPath}/patient?action=rooms" 
-                       class="dashboard-tile bg-gradient-to-br from-teal-600 to-teal-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
-                        <i class="fas fa-bed text-6xl text-white mb-4"></i>
-                        <h2 class="text-2xl font-semibold text-white">Rooms</h2>
-                        <p class="text-gray-100 text-sm mt-2">Check room availability</p>
-                    </a>
-
-                    <!-- Ambulance Tile -->
-                    <a href="${pageContext.request.contextPath}/patient?action=ambulanceDashboard" 
-                       class="dashboard-tile bg-gradient-to-br from-teal-600 to-teal-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
-                        <i class="fas fa-ambulance text-6xl text-white mb-4"></i>
-                        <h2 class="text-2xl font-semibold text-white">Ambulance</h2>
-                        <p class="text-gray-100 text-sm mt-2">Manage ambulance services</p>
-                    </a>
-
-                    <!-- Pay Bills Tile -->
-                    <a href="${pageContext.request.contextPath}/patient?action=viewBills" 
-                       class="dashboard-tile bg-gradient-to-br from-teal-600 to-teal-400 p-8 rounded-xl shadow-md flex flex-col items-center justify-center h-72">
-                        <i class="fas fa-credit-card text-6xl text-white mb-4"></i>
-                        <h2 class="text-2xl font-semibold text-white">Pay Bills</h2>
-                        <p class="text-gray-100 text-sm mt-2">Pay your hospital bills</p>
-                    </a>
+                <div class="table-container bg-white p-6 rounded-xl shadow-md">
+                    <c:choose>
+                        <c:when test="${empty bills}">
+                            <p class="text-gray-600 text-center">No pending bills found.</p>
+                        </c:when>
+                        <c:otherwise>
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-teal-500 text-white">
+                                        <th class="p-3">Bill ID</th>
+                                        <th class="p-3">Room ID</th>
+                                        <th class="p-3">Check-In Date</th>
+                                        <th class="p-3">Check-Out Date</th>
+                                        <th class="p-3">Days Stayed</th>
+                                        <th class="p-3">Total Amount</th>
+                                        <th class="p-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="bill" items="${bills}">
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-3">${bill.id}</td>
+                                            <td class="p-3">${bill.roomId}</td>
+                                            <td class="p-3">${bill.checkInDate}</td>
+                                            <td class="p-3">${bill.checkOutDate}</td>
+                                            <td class="p-3">${bill.daysStayed}</td>
+                                            <td class="p-3">$${bill.totalAmount}</td>
+                                            <td class="p-3">
+                                                <a href="${pageContext.request.contextPath}/patient?action=payBill&roomId=${bill.roomId}" 
+                                                   class="text-teal-500 hover:text-teal-700 font-medium">
+                                                    Pay Now
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
         </div>
