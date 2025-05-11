@@ -127,7 +127,7 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="wow fadeInDown" data-wow-offset="0" data-wow-delay="0.1s">
-                <h2 class="h-ultra">Deegayu Hospital (pvt)ltd</h2>
+                <h2 class="h-ultra">DEEGAYU HOSPITALS (PVT) LTD</h2>
               </div>
               <div class="wow fadeInUp" data-wow-offset="0" data-wow-delay="0.1s">
                 <h4 class="h-light">Your health, Our priority</h4>
@@ -145,9 +145,19 @@
                 </div>
               </div>
             </div>
+            <br>
+            <br>
             <div class="col-lg-6">
               <div class="embed-responsive embed-responsive-4by3">
-                <iframe src="https://player.vimeo.com/video/1082624133?title=0&byline=0&portrait=0&badge=0&autopause=0&controls=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" title="Deegayu Hospital (pvt.ltd)"></iframe>
+                <iframe 
+					  title="vimeo-player" 
+					  src="https://player.vimeo.com/video/1083125044?h=6bf5cfce0e&autoplay=1&muted=1&title=0&byline=0&portrait=0" 
+					  width="640" 
+					  height="360" 
+					  frameborder="0" 
+					  allow="autoplay; fullscreen" 
+					  allowfullscreen>
+				</iframe>
               </div>
             </div>
           </div>
@@ -633,7 +643,7 @@
               <div class="wow fadeInRight" data-wow-delay="0.1s">
                 <div class="text-right">
                   <div class="credits">
-                    <a target="_blank" href="https://www.templateshub.net">Templates Hub</a>
+                    <a target="_blank">Author: Bhashitha Wanasinghe</a>
                   </div>
                 </div>
               </div>
